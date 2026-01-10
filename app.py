@@ -69,12 +69,30 @@ def shuffle_multiplechoice(question):
     
     return question
 
+def select_and_shuffle_questions(questions):
+    # Create a list of (original_index, question) tuples
+    indexed_questions = list(enumerate(questions))
+    random.shuffle(indexed_questions)
+    
+    # Select maximum 10 questions
+    if len(indexed_questions) > 10:
+        indexed_questions = indexed_questions[:10]
+    
+    # Return just the questions and the mapping
+    shuffled_questions = [q for idx, q in indexed_questions]
+    original_indices = [idx for idx, q in indexed_questions]
+    
+    return shuffled_questions, original_indices
+
 @app.get("/quiz/{quiz_name}", response_class=HTMLResponse)
 def quiz(request: Request, quiz_name: str):
     quiz = load_quiz(quiz_name)
     questions = quiz.get("Question", [])
     if not isinstance(questions, list):
         questions = [questions]
+
+    # Randomly select and shuffle questions
+    questions, original_indices = select_and_shuffle_questions(questions)
 
     for question in questions:
         if question["Type"] == "singlechoice":
@@ -89,6 +107,7 @@ def quiz(request: Request, quiz_name: str):
             "quiz_name": quiz_name,
             "title": quiz.get("Quiz", "Quiz"),
             "questions": questions,
+            "original_indices": original_indices,
         },
     )
 
@@ -101,11 +120,28 @@ async def submit(request: Request, quiz_name: str):
         questions = [questions]
 
     form = await request.form()
+    
+    # Get the original indices from the form to reconstruct the same shuffled order
+    original_indices_str = form.get("original_indices", "")
+    if original_indices_str:
+        original_indices = [int(idx) for idx in original_indices_str.split(',')]
+        # Reconstruct the same shuffled questions
+        shuffled_questions = [questions[idx] for idx in original_indices]
+    else:
+        # Fallback: apply the same random selection (shouldn't happen normally)
+        shuffled_questions, original_indices = select_and_shuffle_questions(questions)
+
+    # Apply answer shuffling to the same questions that were displayed
+    for question in shuffled_questions:
+        if question["Type"] == "singlechoice":
+            shuffle_singlechoice(question)
+        elif question["Type"] == "multiplechoice":
+            shuffle_multiplechoice(question)
 
     score = 0
-    total = len(questions)
+    total = len(shuffled_questions)
 
-    for i, q in enumerate(questions):
+    for i, q in enumerate(shuffled_questions):
         qtype = q["Type"]
         correct = q["Correct"]
 

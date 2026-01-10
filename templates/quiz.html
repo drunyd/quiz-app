@@ -1,56 +1,295 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- MDBootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet"/>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid;
+        }
+        
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .question-card.singlechoice {
+            border-left-color: #ff6b6b;
+        }
+        
+        .question-card.multiplechoice {
+            border-left-color: #4ecdc4;
+        }
+        
+        .question-card.word {
+            border-left-color: #45b7d1;
+        }
+        
+        .question-number {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .answer-option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateX(5px);
+        }
+        
+        .answer-option.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .form-check-input:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .form-check-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 50px;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .quiz-title {
+            font-weight: 700;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ title }}</h1>
-
-    <form method="post" action="/quiz/{{ quiz_name }}/submit">
-
-        {% for q in questions %}
-            <div class="question">
-                <p><strong>{{ loop.index }}. {{ q.Text }}</strong></p>
-
-                {% if q.Type == "singlechoice" %}
-                    {% set question_index = loop.index0 %}
-                    <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.Correct }}">
-                    {% for key in q.shuffled_keys %}
-                        {% if q[key] %}
-                            <label>
-                                <input type="radio"
-                                       name="q{{ question_index }}"
-                                       value="{{ key }}"
-                                       required>
-                                {{ key }}: {{ q[key] }}
-                            </label><br>
-                        {% endif %}
-                    {% endfor %}
-
-                {% elif q.Type == "multiplechoice" %}
-                    {% set question_index = loop.index0 %}
-                    <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.Correct|join(',') }}">
-                    {% for ans in q.Answers %}
-                        <label>
-                            <input type="checkbox"
-                                   name="q{{ question_index }}"
-                                   value="{{ loop.index0 }}">
-                            {{ ans }}
-                        </label><br>
-                    {% endfor %}
-
-                {% elif q.Type == "word" %}
-                    {% set question_index = loop.index0 %}
-                    <input type="text"
-                           name="q{{ question_index }}"
-                           required>
-
-                {% endif %}
+    <div class="container py-5">
+        <div class="quiz-container p-4 p-md-5">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="quiz-title display-5">
+                    <i class="fas fa-brain me-3 text-primary"></i>{{ title }}
+                </h1>
+                <div class="alert alert-info d-inline-block" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Randomly selected {{ questions|length }} questions
+                </div>
+                <div class="progress mt-3" style="height: 8px; border-radius: 10px;">
+                    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="{{ questions|length }}"></div>
+                </div>
+                <p class="text-muted mt-2">Question <span id="current-question">1</span> of {{ questions|length }}</p>
             </div>
-        {% endfor %}
 
-        <button type="submit">Submit</button>
-    </form>
+            <form method="post" action="/quiz/{{ quiz_name }}/submit" id="quizForm">
+        <input type="hidden" name="original_indices" value="{{ original_indices|join(',') }}">
+                {% for q in questions %}
+                    <div class="question-card {{ q.Type }} mb-4 p-4" data-question="{{ loop.index }}">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="question-number me-3">{{ loop.index }}</div>
+                            <h5 class="mb-0 flex-grow-1">{{ q.Text }}</h5>
+                            <span class="badge bg-{{ 'danger' if q.Type == 'singlechoice' else 'info' if q.Type == 'multiplechoice' else 'primary' }} rounded-pill">
+                                {{ q.Type.title() }}
+                            </span>
+                        </div>
+
+                        {% if q.Type == "singlechoice" %}
+                            {% set question_index = loop.index0 %}
+                            <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.Correct }}">
+                            <div class="answers-container">
+                                {% for key in q.shuffled_keys %}
+                                    {% if q[key] %}
+                                        <div class="answer-option">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" 
+                                                       name="q{{ question_index }}" 
+                                                       id="q{{ question_index }}_{{ key }}" 
+                                                       value="{{ key }}" required>
+                                                <label class="form-check-label w-100" for="q{{ question_index }}_{{ key }}">
+                                                    <strong>{{ key }}.</strong> {{ q[key] }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                        {% elif q.Type == "multiplechoice" %}
+                            {% set question_index = loop.index0 %}
+                            <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.Correct|join(',') }}">
+                            <div class="answers-container">
+                                {% for ans in q.Answers %}
+                                    <div class="answer-option">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="q{{ question_index }}" 
+                                                   id="q{{ question_index }}_{{ loop.index0 }}" 
+                                                   value="{{ loop.index0 }}">
+                                            <label class="form-check-label w-100" for="q{{ question_index }}_{{ loop.index0 }}">
+                                                <i class="fas fa-square me-2 text-muted"></i>{{ ans }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        {% elif q.Type == "word" %}
+                            {% set question_index = loop.index0 %}
+                            <div class="answer-option">
+                                <div class="form-outline">
+                                    <input type="text" class="form-control form-control-lg" 
+                                           id="q{{ question_index }}" name="q{{ question_index }}" 
+                                           placeholder="Type your answer here..." required>
+                                    <label class="form-label" for="q{{ question_index }}">Your Answer</label>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <!-- Submit Button -->
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn submit-btn text-white btn-lg">
+                        <i class="fas fa-check-circle me-2"></i>Submit Quiz
+                    </button>
+                    <a href="/" class="btn btn-outline-secondary btn-lg ms-3">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Quizzes
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MDBootstrap JS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // Add interactive styling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle answer option clicks
+            const answerOptions = document.querySelectorAll('.answer-option');
+            answerOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    if (!e.target.matches('input')) {
+                        const input = this.querySelector('input');
+                        if (input.type === 'radio') {
+                            // Clear other options in the same question
+                            const questionCard = this.closest('.question-card');
+                            questionCard.querySelectorAll('.answer-option').forEach(opt => {
+                                opt.classList.remove('selected');
+                            });
+                            this.classList.add('selected');
+                            input.checked = true;
+                        } else if (input.type === 'checkbox') {
+                            this.classList.toggle('selected');
+                            input.checked = !input.checked;
+                        }
+                    }
+                });
+            });
+
+            // Update progress bar
+            const form = document.getElementById('quizForm');
+            const progressBar = document.querySelector('.progress-bar');
+            const totalQuestions = {{ questions|length }};
+            
+            function updateProgress() {
+                let answeredQuestions = 0;
+                
+                for (let i = 0; i < totalQuestions; i++) {
+                    const radios = document.querySelectorAll(`input[name="q${i}"][type="radio"]`);
+                    const checkboxes = document.querySelectorAll(`input[name="q${i}"][type="checkbox"]`);
+                    const textInput = document.querySelector(`input[name="q${i}"][type="text"]`);
+                    
+                    if (radios.length > 0) {
+                        const checked = Array.from(radios).some(r => r.checked);
+                        if (checked) answeredQuestions++;
+                    } else if (checkboxes.length > 0) {
+                        const checked = Array.from(checkboxes).some(c => c.checked);
+                        if (checked) answeredQuestions++;
+                    } else if (textInput) {
+                        if (textInput.value.trim()) answeredQuestions++;
+                    }
+                }
+                
+                const progress = (answeredQuestions / totalQuestions) * 100;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', answeredQuestions);
+                
+                // Update current question display
+                const currentQuestion = Math.min(answeredQuestions + 1, totalQuestions);
+                document.getElementById('current-question').textContent = currentQuestion;
+            }
+            
+            // Add event listeners to all inputs
+            form.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', updateProgress);
+                input.addEventListener('input', updateProgress);
+            });
+            
+            updateProgress();
+        });
+    </script>
 </body>
 </html>

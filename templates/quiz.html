@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>{{ title }}</h1>
+
+    <form method="post" action="/quiz/{{ quiz_name }}/submit">
+
+        {% for q in questions %}
+            <div class="question">
+                <p><strong>{{ loop.index }}. {{ q.Text }}</strong></p>
+
+                {% if q.Type == "singlechoice" %}
+                    {% set question_index = loop.index0 %}
+                    {% for key in ["A", "B", "C", "D"] %}
+                        <label>
+                            <input type="radio"
+                                   name="q{{ question_index }}"
+                                   value="{{ key }}"
+                                   required>
+                            {{ key }}: {{ q[key] }}
+                        </label><br>
+                    {% endfor %}
+
+                {% elif q.Type == "multiplechoice" %}
+                    {% set question_index = loop.index0 %}
+                    {% for ans in q.Answers %}
+                        <label>
+                            <input type="checkbox"
+                                   name="q{{ question_index }}"
+                                   value="{{ ans }}">
+                            {{ ans }}
+                        </label><br>
+                    {% endfor %}
+
+                {% elif q.Type == "word" %}
+                    {% set question_index = loop.index0 %}
+                    <input type="text"
+                           name="q{{ question_index }}"
+                           required>
+
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

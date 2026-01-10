@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Quiz Result</h1>
+
+    <p>
+        You scored <strong>{{ score }}</strong> out of <strong>{{ total }}</strong>.
+    </p>
+
+    <p>
+        {% if score == total %}
+            🎉 Perfect score!
+        {% elif score > total / 2 %}
+            👍 Well done!
+        {% else %}
+            💪 Keep practicing!
+        {% endif %}
+    </p>
+
+    <a href="/">Back to quizzes</a>
+</body>
+</html>

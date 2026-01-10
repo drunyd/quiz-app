@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Selection</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Select a Quiz</h1>
+
+    <ul>
+        {% for quiz in quizzes %}
+            <li>
+                <a href="/quiz/{{ quiz }}">{{ quiz }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,17 +1,132 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, HTTPException, Depends, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.status import HTTP_302_FOUND
 import yaml
 import os
 import random
+import json
+import sqlite3
+import hashlib
+from datetime import datetime
+from typing import Optional
 
 QUIZ_DIR = "quizzes"
+USERS_FILE = "users.json"
+DB_FILE = "quiz_app.db"
 
 app = FastAPI()
 
+app.add_middleware(SessionMiddleware, secret_key="your-secret-key-here")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS quiz_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            quiz_name TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            total INTEGER NOT NULL,
+            percentage REAL NOT NULL,
+            timestamp TEXT NOT NULL,
+            time_taken INTEGER
+        )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+
+def load_users():
+    with open(USERS_FILE, 'r') as f:
+        return json.load(f)
+
+
+def verify_user(username: str, password: str):
+    users = load_users()
+    for user in users['users']:
+        if user['username'] == username and user['password'] == password:
+            return user
+    return None
+
+
+def get_current_user(request: Request):
+    username = request.session.get('username')
+    if not username:
+        return None
+    
+    users = load_users()
+    for user in users['users']:
+        if user['username'] == username:
+            return user
+    return None
+
+
+def save_quiz_attempt(username: str, quiz_name: str, score: int, total: int, time_taken: int = 0):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    
+    percentage = (score / total) * 100 if total > 0 else 0
+    timestamp = datetime.now().isoformat()
+    
+    # Default time_taken to 0 if None to avoid database constraint issues
+    if time_taken is None:
+        time_taken = 0
+    
+    cursor.execute('''
+        INSERT INTO quiz_attempts (username, quiz_name, score, total, percentage, timestamp, time_taken)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (username, quiz_name, score, total, percentage, timestamp, time_taken))
+    
+    conn.commit()
+    conn.close()
+
+
+def get_user_progress(username: str):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT quiz_name, score, total, percentage, timestamp, time_taken
+        FROM quiz_attempts
+        WHERE username = ?
+        ORDER BY timestamp DESC
+    ''', (username,))
+    
+    results = cursor.fetchall()
+    conn.close()
+    
+    return [{
+        'quiz_name': row[0],
+        'score': row[1],
+        'total': row[2], 
+        'percentage': row[3],
+        'timestamp': row[4],
+        'time_taken': row[5]
+    } for row in results]
+
+
+def get_children_progress(admin_username: str):
+    users = load_users()
+    children = [u['username'] for u in users['users'] if u.get('parent') == admin_username]
+    
+    all_progress = {}
+    for child in children:
+        all_progress[child] = get_user_progress(child)
+    
+    return all_progress
+
+
+# Initialize database on startup
+init_db()
 
 
 def load_quiz(filename: str):
@@ -20,13 +135,64 @@ def load_quiz(filename: str):
         return yaml.safe_load(f)
 
 
+@app.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.post("/login")
+async def login(request: Request, username: str = Form(...), password: str = Form(...)):
+    user = verify_user(username, password)
+    if user:
+        request.session['username'] = username
+        request.session['role'] = user['role']
+        return RedirectResponse(url="/", status_code=HTTP_302_FOUND)
+    else:
+        return templates.TemplateResponse("login.html", {
+            "request": request, 
+            "error": "Invalid username or password"
+        })
+
+
+@app.get("/logout")
+def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+    
     quizzes = sorted(f for f in os.listdir(QUIZ_DIR) if f.endswith(".yaml"))
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "quizzes": quizzes},
+        {"request": request, "quizzes": quizzes, "user": user},
     )
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+    
+    if user['role'] == 'admin':
+        children_progress = get_children_progress(user['username'])
+        return templates.TemplateResponse("admin_dashboard.html", {
+            "request": request,
+            "user": user,
+            "children_progress": children_progress
+        })
+    else:
+        progress = get_user_progress(user['username'])
+        return templates.TemplateResponse("user_dashboard.html", {
+            "request": request,
+            "user": user,
+            "progress": progress
+        })
 
 
 def shuffle_singlechoice(question):
@@ -86,6 +252,10 @@ def select_and_shuffle_questions(questions):
 
 @app.get("/quiz/{quiz_name}", response_class=HTMLResponse)
 def quiz(request: Request, quiz_name: str):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+    
     quiz = load_quiz(quiz_name)
     questions = quiz.get("Question", [])
     if not isinstance(questions, list):
@@ -108,12 +278,17 @@ def quiz(request: Request, quiz_name: str):
             "title": quiz.get("Quiz", "Quiz"),
             "questions": questions,
             "original_indices": original_indices,
+            "user": user,
         },
     )
 
 
 @app.post("/quiz/{quiz_name}/submit", response_class=HTMLResponse)
 async def submit(request: Request, quiz_name: str):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+    
     quiz = load_quiz(quiz_name)
     questions = quiz.get("Question", [])
     if not isinstance(questions, list):
@@ -166,11 +341,15 @@ async def submit(request: Request, quiz_name: str):
             if answer in valid:
                 score += 1
 
+    # Save the quiz attempt
+    save_quiz_attempt(user['username'], quiz_name, score, total)
+
     return templates.TemplateResponse(
         "result.html",
         {
             "request": request,
             "score": score,
             "total": total,
+            "user": user,
         },
     )

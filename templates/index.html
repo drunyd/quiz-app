@@ -50,6 +50,35 @@
 </head>
 <body>
     <div class="container py-5">
+        <!-- Navigation Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-white shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user-circle me-2"></i>
+                                    Welcome, {{ user.username }}!
+                                    {% if user.role == 'admin' %}
+                                    <span class="badge bg-primary ms-2">Admin</span>
+                                    {% endif %}
+                                </h5>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <a href="/dashboard" class="btn btn-outline-primary me-2">
+                                    <i class="fas fa-chart-bar me-1"></i> Dashboard
+                                </a>
+                                <a href="/logout" class="btn btn-outline-danger">
+                                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="text-center mb-5">
             <h1 class="main-title display-4">
                 <i class="fas fa-brain me-3"></i>Select a Quiz

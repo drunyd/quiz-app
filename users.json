@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "username": "Mate",
+      "password": "mate123",
+      "role": "child",
+      "parent": "drunyd"
+    },
+    {
+      "username": "Maja", 
+      "password": "maja123",
+      "role": "child",
+      "parent": "drunyd"
+    },
+    {
+      "username": "drunyd",
+      "password": "admin123",
+      "role": "admin",
+      "parent": null
+    }
+  ]
+}

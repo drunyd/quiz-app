@@ -15,23 +15,27 @@
 
                 {% if q.Type == "singlechoice" %}
                     {% set question_index = loop.index0 %}
-                    {% for key in ["A", "B", "C", "D"] %}
-                        <label>
-                            <input type="radio"
-                                   name="q{{ question_index }}"
-                                   value="{{ key }}"
-                                   required>
-                            {{ key }}: {{ q[key] }}
-                        </label><br>
+                    <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.Correct }}">
+                    {% for key in q.shuffled_keys %}
+                        {% if q[key] %}
+                            <label>
+                                <input type="radio"
+                                       name="q{{ question_index }}"
+                                       value="{{ key }}"
+                                       required>
+                                {{ key }}: {{ q[key] }}
+                            </label><br>
+                        {% endif %}
                     {% endfor %}
 
                 {% elif q.Type == "multiplechoice" %}
                     {% set question_index = loop.index0 %}
+                    <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.Correct|join(',') }}">
                     {% for ans in q.Answers %}
                         <label>
                             <input type="checkbox"
                                    name="q{{ question_index }}"
-                                   value="{{ ans }}">
+                                   value="{{ loop.index0 }}">
                             {{ ans }}
                         </label><br>
                     {% endfor %}

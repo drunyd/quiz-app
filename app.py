@@ -297,7 +297,7 @@ async def submit(request: Request, quiz_name: str):
     form = await request.form()
     
     # Get the original indices from the form to reconstruct the same shuffled order
-    original_indices_str = form.get("original_indices", "")
+    original_indices_str = str(form.get("original_indices", ""))
     if original_indices_str:
         original_indices = [int(idx) for idx in original_indices_str.split(',')]
         # Reconstruct the same shuffled questions
@@ -315,31 +315,80 @@ async def submit(request: Request, quiz_name: str):
 
     score = 0
     total = len(shuffled_questions)
+    incorrect_answers = []
 
     for i, q in enumerate(shuffled_questions):
         qtype = q["Type"]
         correct = q["Correct"]
+        is_correct = False
 
         if qtype == "singlechoice":
             # Get the original correct answer from the form data
-            original_correct = form.get(f"q{i}_correct")
-            if form.get(f"q{i}") == original_correct:
+            original_correct = str(form.get(f"q{i}_correct", ""))
+            user_answer = str(form.get(f"q{i}", ""))
+            if user_answer == original_correct:
                 score += 1
+                is_correct = True
+            else:
+                # Store incorrect answer details
+                incorrect_answers.append({
+                    'question': q.get('Question', f'Question {i+1}'),
+                    'user_answer': q.get(user_answer, 'No answer selected'),
+                    'correct_answer': q.get(original_correct, 'Unknown'),
+                    'question_type': 'singlechoice'
+                })
 
         elif qtype == "multiplechoice":
             # Get the original correct answers from the form data
-            original_correct_str = form.get(f"q{i}_correct")
+            original_correct_str = str(form.get(f"q{i}_correct", ""))
             if original_correct_str:
                 original_correct = original_correct_str.split(',')
-                selected = form.getlist(f"q{i}")
+                selected = [str(item) for item in form.getlist(f"q{i}")]
                 if sorted(selected) == sorted(original_correct):
                     score += 1
+                    is_correct = True
+                else:
+                    # Store incorrect answer details
+                    correct_answers_text = []
+                    user_answers_text = []
+                    
+                    for idx in original_correct:
+                        try:
+                            idx_int = int(idx)
+                            if idx_int < len(q.get("Answers", [])):
+                                correct_answers_text.append(q.get("Answers", [])[idx_int])
+                        except ValueError:
+                            continue
+                    
+                    for idx in selected:
+                        try:
+                            idx_int = int(idx)
+                            if idx_int < len(q.get("Answers", [])):
+                                user_answers_text.append(q.get("Answers", [])[idx_int])
+                        except ValueError:
+                            continue
+                    
+                    incorrect_answers.append({
+                        'question': q.get('Question', f'Question {i+1}'),
+                        'user_answer': ', '.join(user_answers_text) if user_answers_text else 'No answer selected',
+                        'correct_answer': ', '.join(correct_answers_text) if correct_answers_text else 'Unknown',
+                        'question_type': 'multiplechoice'
+                    })
 
         elif qtype == "word":
-            answer = form.get(f"q{i}", "").strip()
+            answer = str(form.get(f"q{i}", "")).strip()
             valid = [str(c) for c in correct]
             if answer in valid:
                 score += 1
+                is_correct = True
+            else:
+                # Store incorrect answer details
+                incorrect_answers.append({
+                    'question': q.get('Question', f'Question {i+1}'),
+                    'user_answer': answer if answer else 'No answer provided',
+                    'correct_answer': ', '.join(str(c) for c in correct),
+                    'question_type': 'word'
+                })
 
     # Save the quiz attempt
     save_quiz_attempt(user['username'], quiz_name, score, total)
@@ -351,5 +400,6 @@ async def submit(request: Request, quiz_name: str):
             "score": score,
             "total": total,
             "user": user,
+            "incorrect_answers": incorrect_answers,
         },
     )

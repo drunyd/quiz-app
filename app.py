@@ -205,12 +205,15 @@ def shuffle_singlechoice(question):
     new_correct = keys[new_correct_index]
     
     shuffled = {}
+    key_mapping = {}  # Store mapping from new key to original key
     for i, key in enumerate(valid_keys):
         shuffled[keys[i]] = question[key]
+        key_mapping[keys[i]] = key  # Map new position to original key
     
     question.update(shuffled)
     question["Correct"] = new_correct
     question["shuffled_keys"] = keys[:len(valid_keys)]
+    question["key_mapping"] = key_mapping  # Store the mapping for answer evaluation
     
     return question
 
@@ -270,6 +273,13 @@ def quiz(request: Request, quiz_name: str):
         elif question["Type"] == "multiplechoice":
             shuffle_multiplechoice(question)
 
+    # Store the complete shuffled state as JSON
+    import json
+    shuffled_state = json.dumps([{
+        'original_index': idx,
+        'question': q
+    } for idx, q in zip(original_indices, questions)])
+
     return templates.TemplateResponse(
         "quiz.html",
         {
@@ -278,6 +288,7 @@ def quiz(request: Request, quiz_name: str):
             "title": quiz.get("Quiz", "Quiz"),
             "questions": questions,
             "original_indices": original_indices,
+            "shuffled_state": shuffled_state,
             "user": user,
         },
     )
@@ -289,29 +300,40 @@ async def submit(request: Request, quiz_name: str):
     if not user:
         return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
     
-    quiz = load_quiz(quiz_name)
-    questions = quiz.get("Question", [])
-    if not isinstance(questions, list):
-        questions = [questions]
-
     form = await request.form()
     
-    # Get the original indices from the form to reconstruct the same shuffled order
-    original_indices_str = str(form.get("original_indices", ""))
-    if original_indices_str:
-        original_indices = [int(idx) for idx in original_indices_str.split(',')]
-        # Reconstruct the same shuffled questions
-        shuffled_questions = [questions[idx] for idx in original_indices]
+    # Get the stored shuffled state from the form
+    shuffled_state_str = str(form.get("shuffled_state", ""))
+    import json
+    
+    if shuffled_state_str:
+        try:
+            shuffled_data = json.loads(shuffled_state_str)
+            shuffled_questions = [item['question'] for item in shuffled_data]
+        except (json.JSONDecodeError, KeyError):
+            # Fallback: reload and re-shuffle
+            quiz = load_quiz(quiz_name)
+            questions = quiz.get("Question", [])
+            if not isinstance(questions, list):
+                questions = [questions]
+            shuffled_questions, _ = select_and_shuffle_questions(questions)
+            for question in shuffled_questions:
+                if question["Type"] == "singlechoice":
+                    shuffle_singlechoice(question)
+                elif question["Type"] == "multiplechoice":
+                    shuffle_multiplechoice(question)
     else:
-        # Fallback: apply the same random selection (shouldn't happen normally)
-        shuffled_questions, original_indices = select_and_shuffle_questions(questions)
-
-    # Apply answer shuffling to the same questions that were displayed
-    for question in shuffled_questions:
-        if question["Type"] == "singlechoice":
-            shuffle_singlechoice(question)
-        elif question["Type"] == "multiplechoice":
-            shuffle_multiplechoice(question)
+        # Fallback: reload and re-shuffle
+        quiz = load_quiz(quiz_name)
+        questions = quiz.get("Question", [])
+        if not isinstance(questions, list):
+            questions = [questions]
+        shuffled_questions, _ = select_and_shuffle_questions(questions)
+        for question in shuffled_questions:
+            if question["Type"] == "singlechoice":
+                shuffle_singlechoice(question)
+            elif question["Type"] == "multiplechoice":
+                shuffle_multiplechoice(question)
 
     score = 0
     total = len(shuffled_questions)
@@ -331,10 +353,14 @@ async def submit(request: Request, quiz_name: str):
                 is_correct = True
             else:
                 # Store incorrect answer details
+                # Now using the stored shuffled state, the mapping should be correct
+                user_answer_text = q.get(user_answer, 'No answer selected') if user_answer else 'No answer selected'
+                correct_answer_text = q.get(original_correct, 'Unknown') if original_correct else 'Unknown'
+                
                 incorrect_answers.append({
-                    'question': q.get('Question', f'Question {i+1}'),
-                    'user_answer': q.get(user_answer, 'No answer selected'),
-                    'correct_answer': q.get(original_correct, 'Unknown'),
+                    'question': q.get('Text', f'Question {i+1}'),
+                    'user_answer': user_answer_text,
+                    'correct_answer': correct_answer_text,
                     'question_type': 'singlechoice'
                 })
 
@@ -369,7 +395,7 @@ async def submit(request: Request, quiz_name: str):
                             continue
                     
                     incorrect_answers.append({
-                        'question': q.get('Question', f'Question {i+1}'),
+                        'question': q.get('Text', f'Question {i+1}'),
                         'user_answer': ', '.join(user_answers_text) if user_answers_text else 'No answer selected',
                         'correct_answer': ', '.join(correct_answers_text) if correct_answers_text else 'Unknown',
                         'question_type': 'multiplechoice'
@@ -384,7 +410,7 @@ async def submit(request: Request, quiz_name: str):
             else:
                 # Store incorrect answer details
                 incorrect_answers.append({
-                    'question': q.get('Question', f'Question {i+1}'),
+                    'question': q.get('Text', f'Question {i+1}'),
                     'user_answer': answer if answer else 'No answer provided',
                     'correct_answer': ', '.join(str(c) for c in correct),
                     'question_type': 'word'
@@ -401,5 +427,6 @@ async def submit(request: Request, quiz_name: str):
             "total": total,
             "user": user,
             "incorrect_answers": incorrect_answers,
+            "quiz_name": quiz_name,
         },
     )

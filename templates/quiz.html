@@ -268,7 +268,7 @@
             </div>
 
             <form method="post" action="/quiz/{{ quiz_name }}/submit" id="quizForm">
-                <input type="hidden" name="original_indices" value="{{ original_indices|join(',') }}">
+                <input type="hidden" name="shuffled_state" value="{{ shuffled_state }}">
                 
                 {% for q in questions %}
                     <div class="question-card {{ q.Type }} mb-4 p-4" data-question="{{ loop.index0 }}">

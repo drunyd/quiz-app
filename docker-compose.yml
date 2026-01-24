@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  quiz-app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./quiz_app.db:/app/quiz_app.db
+      - ./quizzes:/app/quizzes
+      - ./users.json:/app/users.json
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1

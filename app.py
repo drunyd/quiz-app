@@ -135,6 +135,66 @@ def load_quiz(filename: str):
         return yaml.safe_load(f)
 
 
+def get_directory_contents(path: str = ""):
+    """Get folders and quiz files at current directory level"""
+    target_dir = os.path.join(QUIZ_DIR, path) if path else QUIZ_DIR
+    
+    if not os.path.exists(target_dir):
+        return {"folders": [], "files": [], "parent_path": None, "current_path": "Unknown"}
+    
+    folders = []
+    files = []
+    
+    for item in sorted(os.listdir(target_dir)):
+        item_path = os.path.join(target_dir, item)
+        rel_path = os.path.join(path, item) if path else item
+        
+        if os.path.isdir(item_path):
+            # Count all quizzes in subdirectory and its subdirectories
+            quiz_count = 0
+            for root, dirs, files_in_dir in os.walk(item_path):
+                quiz_count += len([f for f in files_in_dir if f.endswith('.yaml')])
+            
+            if quiz_count > 0:
+                folders.append({
+                    'name': item,
+                    'path': rel_path,
+                    'quiz_count': quiz_count
+                })
+        elif item.endswith('.yaml'):
+            files.append({
+                'name': item,
+                'path': rel_path,
+                'display_name': item.replace('.yaml', '').replace('.', ' ').title()
+            })
+    
+    # Parent path for navigation
+    parent_path = os.path.dirname(path) if path and path != "." else None
+    
+    return {
+        "folders": folders,
+        "files": files,
+        "parent_path": parent_path,
+        "current_path": path or "Quizzes"
+    }
+
+
+def get_breadcrumb_data(path: str = ""):
+    """Generate breadcrumb navigation for current path"""
+    if not path:
+        return [{"name": "Quizzes", "path": ""}]
+    
+    parts = path.split('/')
+    breadcrumb = [{"name": "Quizzes", "path": ""}]
+    current_path = ""
+    
+    for part in parts:
+        current_path = os.path.join(current_path, part) if current_path else part
+        breadcrumb.append({"name": part, "path": current_path})
+    
+    return breadcrumb
+
+
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -162,14 +222,33 @@ def logout(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
+    """Redirect to browse root for file explorer"""
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
     
-    quizzes = sorted(f for f in os.listdir(QUIZ_DIR) if f.endswith(".yaml"))
+    return RedirectResponse(url="/browse", status_code=HTTP_302_FOUND)
+
+
+@app.get("/browse/{path:path}", response_class=HTMLResponse)
+def browse(request: Request, path: str = ""):
+    """Browse quizzes at specific directory level"""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+    
+    contents = get_directory_contents(path)
+    breadcrumb = get_breadcrumb_data(path)
+    
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "quizzes": quizzes, "user": user},
+        {
+            "request": request,
+            "contents": contents,
+            "breadcrumb": breadcrumb,
+            "user": user,
+            "explorer_mode": True,
+        },
     )
 
 
@@ -253,13 +332,13 @@ def select_and_shuffle_questions(questions):
     
     return shuffled_questions, original_indices
 
-@app.get("/quiz/{quiz_name}", response_class=HTMLResponse)
-def quiz(request: Request, quiz_name: str):
+@app.get("/quiz/{quiz_path:path}", response_class=HTMLResponse)
+def quiz(request: Request, quiz_path: str):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
     
-    quiz = load_quiz(quiz_name)
+    quiz = load_quiz(quiz_path)
     questions = quiz.get("Question", [])
     if not isinstance(questions, list):
         questions = [questions]
@@ -284,7 +363,7 @@ def quiz(request: Request, quiz_name: str):
         "quiz.html",
         {
             "request": request,
-            "quiz_name": quiz_name,
+            "quiz_name": quiz_path,
             "title": quiz.get("Quiz", "Quiz"),
             "questions": questions,
             "original_indices": original_indices,
@@ -294,8 +373,8 @@ def quiz(request: Request, quiz_name: str):
     )
 
 
-@app.post("/quiz/{quiz_name}/submit", response_class=HTMLResponse)
-async def submit(request: Request, quiz_name: str):
+@app.post("/quiz/{quiz_path:path}/submit", response_class=HTMLResponse)
+async def submit(request: Request, quiz_path: str):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
@@ -312,7 +391,7 @@ async def submit(request: Request, quiz_name: str):
             shuffled_questions = [item['question'] for item in shuffled_data]
         except (json.JSONDecodeError, KeyError):
             # Fallback: reload and re-shuffle
-            quiz = load_quiz(quiz_name)
+            quiz = load_quiz(quiz_path)
             questions = quiz.get("Question", [])
             if not isinstance(questions, list):
                 questions = [questions]
@@ -324,7 +403,7 @@ async def submit(request: Request, quiz_name: str):
                     shuffle_multiplechoice(question)
     else:
         # Fallback: reload and re-shuffle
-        quiz = load_quiz(quiz_name)
+        quiz = load_quiz(quiz_path)
         questions = quiz.get("Question", [])
         if not isinstance(questions, list):
             questions = [questions]
@@ -417,7 +496,7 @@ async def submit(request: Request, quiz_name: str):
                 })
 
     # Save the quiz attempt
-    save_quiz_attempt(user['username'], quiz_name, score, total)
+    save_quiz_attempt(user['username'], quiz_path, score, total)
 
     return templates.TemplateResponse(
         "result.html",
@@ -427,6 +506,6 @@ async def submit(request: Request, quiz_name: str):
             "total": total,
             "user": user,
             "incorrect_answers": incorrect_answers,
-            "quiz_name": quiz_name,
+            "quiz_name": quiz_path,
         },
     )

@@ -67,6 +67,41 @@
             border-left-color: #45b7d1;
         }
         
+        .question-card.ordering {
+            border-left-color: #9c27b0;
+        }
+        
+        .ordering-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .ordering-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .order-number {
+            background: linear-gradient(45deg, #9c27b0, #673ab7);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .move-up, .move-down {
+            padding: 4px 8px;
+        }
+        
         .question-number {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
@@ -330,6 +365,32 @@
                                     <label class="form-label" for="q{{ question_index }}">Your Answer</label>
                                 </div>
                             </div>
+
+                        {% elif q.Type == "ordering" %}
+                            {% set question_index = loop.index0 %}
+                            <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.Correct|join('|||') }}">
+                            <div class="ordering-container" id="ordering_{{ question_index }}">
+                                <p class="text-muted mb-3"><i class="fas fa-arrows-alt-v me-2"></i>Rendezd időrendbe az eseményeket!</p>
+                                <div class="ordering-items" data-question="{{ question_index }}">
+                                    {% for item in q.Items %}
+                                        <div class="ordering-item" data-item="{{ item }}">
+                                            <input type="hidden" name="q{{ question_index }}" value="{{ item }}">
+                                            <div class="d-flex align-items-center">
+                                                <span class="order-number me-3">{{ loop.index }}</span>
+                                                <span class="item-text flex-grow-1">{{ item }}</span>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button type="button" class="btn btn-outline-secondary move-up" data-question="{{ question_index }}" data-index="{{ loop.index0 }}">
+                                                        <i class="fas fa-chevron-up"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-secondary move-down" data-question="{{ question_index }}" data-index="{{ loop.index0 }}">
+                                                        <i class="fas fa-chevron-down"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -424,6 +485,7 @@
                     const radios = document.querySelectorAll(`input[name="q${i}"][type="radio"]`);
                     const checkboxes = document.querySelectorAll(`input[name="q${i}"][type="checkbox"]`);
                     const textInput = document.querySelector(`input[name="q${i}"][type="text"]`);
+                    const orderingInputs = document.querySelectorAll(`input[name="q${i}"][type="hidden"]`);
                     
                     let isAnswered = false;
                     
@@ -433,6 +495,9 @@
                         isAnswered = Array.from(checkboxes).some(c => c.checked);
                     } else if (textInput) {
                         isAnswered = textInput.value.trim() !== '';
+                    } else if (orderingInputs.length > 0) {
+                        // Ordering questions are always considered answered (items are pre-populated)
+                        isAnswered = true;
                     }
                     
                     if (isAnswered) {
@@ -498,6 +563,59 @@
                 } else if (e.key === 'ArrowRight' && currentQuestion < totalQuestions - 1) {
                     goToQuestion(currentQuestion + 1);
                 }
+            });
+            
+            // Ordering question functionality
+            function updateOrderNumbers(questionIndex) {
+                const container = document.querySelector(`#ordering_${questionIndex} .ordering-items`);
+                const items = container.querySelectorAll('.ordering-item');
+                items.forEach((item, idx) => {
+                    item.querySelector('.order-number').textContent = idx + 1;
+                    item.querySelector('input[type="hidden"]').value = item.dataset.item;
+                });
+            }
+            
+            function moveItem(questionIndex, fromIndex, direction) {
+                const container = document.querySelector(`#ordering_${questionIndex} .ordering-items`);
+                const items = Array.from(container.querySelectorAll('.ordering-item'));
+                const toIndex = fromIndex + direction;
+                
+                if (toIndex < 0 || toIndex >= items.length) return;
+                
+                const item = items[fromIndex];
+                const targetItem = items[toIndex];
+                
+                if (direction === -1) {
+                    container.insertBefore(item, targetItem);
+                } else {
+                    container.insertBefore(targetItem, item);
+                }
+                
+                updateOrderNumbers(questionIndex);
+                updateProgress();
+            }
+            
+            // Add event listeners for ordering buttons
+            document.querySelectorAll('.move-up').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const questionIndex = this.dataset.question;
+                    const item = this.closest('.ordering-item');
+                    const container = document.querySelector(`#ordering_${questionIndex} .ordering-items`);
+                    const items = Array.from(container.querySelectorAll('.ordering-item'));
+                    const itemIndex = items.indexOf(item);
+                    moveItem(questionIndex, itemIndex, -1);
+                });
+            });
+            
+            document.querySelectorAll('.move-down').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const questionIndex = this.dataset.question;
+                    const item = this.closest('.ordering-item');
+                    const container = document.querySelector(`#ordering_${questionIndex} .ordering-items`);
+                    const items = Array.from(container.querySelectorAll('.ordering-item'));
+                    const itemIndex = items.indexOf(item);
+                    moveItem(questionIndex, itemIndex, 1);
+                });
             });
             
             updateProgress();

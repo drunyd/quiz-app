@@ -495,6 +495,24 @@ async def submit(request: Request, quiz_path: str):
                     'question_type': 'word'
                 })
 
+        elif qtype == "ordering":
+            # Get the user's submitted order (list of items in their chosen order)
+            user_order = form.getlist(f"q{i}")
+            # Get the correct order from hidden field
+            correct_order_str = str(form.get(f"q{i}_correct", ""))
+            if correct_order_str:
+                correct_order = correct_order_str.split('|||')
+                if user_order == correct_order:
+                    score += 1
+                    is_correct = True
+                else:
+                    incorrect_answers.append({
+                        'question': q.get('Text', f'Question {i+1}'),
+                        'user_answer': ' → '.join(user_order) if user_order else 'No order provided',
+                        'correct_answer': ' → '.join(correct_order),
+                        'question_type': 'ordering'
+                    })
+
     # Save the quiz attempt
     save_quiz_attempt(user['username'], quiz_path, score, total)
 

@@ -1,4 +1,5 @@
-fastapi
+fastapi==0.114.2
+starlette==0.38.6
 uvicorn
 pyyaml
 jinja2

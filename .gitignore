@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .env
 quizzes/*.yaml
+!quizzes/sample.yaml
 quizzes/6.o/
 quizzes/7.o/
 quiz_app.db

@@ -1,0 +1,32 @@
+Quiz: Sample Quiz
+Question:
+  - Type: singlechoice
+    Text: What color is the sky on a clear day?
+    A: Blue
+    B: Green
+    C: Red
+    D: Yellow
+    Correct: A
+
+  - Type: multiplechoice
+    Text: Which of these are citrus fruits?
+    Answers: [Apple, Orange, Lemon, Banana]
+    Correct: [Orange, Lemon]
+
+  - Type: word
+    Text: What planet do we live on?
+    Answers: [Mars, Venus, Jupiter, Earth]
+    Correct: [Earth]
+
+  - Type: ordering
+    Text: Put these numbers in order from smallest to largest
+    Items:
+      - Three
+      - One
+      - Four
+      - Two
+    Correct:
+      - One
+      - Two
+      - Three
+      - Four

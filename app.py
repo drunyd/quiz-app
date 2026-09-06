@@ -129,6 +129,11 @@ def get_children_progress(admin_username: str):
 init_db()
 
 
+def normalize_answer(text: str) -> str:
+    """Remove all spaces and uppercase, for forgiving word matching."""
+    return "".join(str(text).split()).upper()
+
+
 def load_quiz(filename: str):
     path = os.path.join(QUIZ_DIR, filename)
     with open(path, "r", encoding="utf-8") as f:
@@ -481,16 +486,17 @@ async def submit(request: Request, quiz_path: str):
                     })
 
         elif qtype == "word":
-            answer = str(form.get(f"q{i}", "")).strip()
-            valid = [str(c) for c in correct]
-            if answer in valid:
+            raw_answer = str(form.get(f"q{i}", "")).strip()
+            answer = normalize_answer(raw_answer)
+            valid = [normalize_answer(c) for c in correct]
+            if answer and answer in valid:
                 score += 1
                 is_correct = True
             else:
                 # Store incorrect answer details
                 incorrect_answers.append({
                     'question': q.get('Text', f'Question {i+1}'),
-                    'user_answer': answer if answer else 'No answer provided',
+                    'user_answer': raw_answer if raw_answer else 'No answer provided',
                     'correct_answer': ', '.join(str(c) for c in correct),
                     'question_type': 'word'
                 })

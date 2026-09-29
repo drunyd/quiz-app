@@ -654,3 +654,912 @@ body {
 .explorer-card:hover .card-body {
     transform: scale(1.02);
 }
+
+/* ============================================
+   THEME CHOOSER
+   ============================================ */
+.login-theme-chooser {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1050;
+}
+
+.dropdown-item.theme-option {
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item.theme-option.active {
+    font-weight: 600;
+}
+
+.dropdown-item.theme-option.active::after {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-left: auto;
+    color: #667eea;
+}
+
+/* ============================================
+   DARK THEME
+   Overrides the light (Original) theme without
+   touching the styles above.
+   To add a theme, add a [data-theme="..."]
+   section and a chooser entry in macros.html.
+   ============================================ */
+[data-theme="dark"] {
+    --bs-body-color: #e4e6eb;
+    --bs-body-color-rgb: 228, 230, 235;
+    --bs-body-bg: #1f212b;
+    --bs-secondary-color: #a8adba;
+    --bs-tertiary-color: #7c8291;
+    --bs-emphasis-color: #ffffff;
+    --bs-border-color: #343744;
+    --bs-card-bg: #1f212b;
+    --bs-card-border-color: #343744;
+    --bs-card-cap-bg: #2a2d3a;
+    --bs-progress-bg: #2a2d3a;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] body {
+    background: linear-gradient(135deg, #14141f 0%, #1b2035 100%);
+    color: #e4e6eb;
+}
+
+/* Headers */
+[data-theme="dark"] .app-nav-header {
+    background: #1f212b;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .explorer-header {
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* Cards and surfaces */
+[data-theme="dark"] .quiz-container,
+[data-theme="dark"] .result-container,
+[data-theme="dark"] .dashboard-header,
+[data-theme="dark"] .progress-card,
+[data-theme="dark"] .question-card,
+[data-theme="dark"] .stats-card,
+[data-theme="dark"] .login-container {
+    background: #1f212b;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .quiz-container,
+[data-theme="dark"] .result-container {
+    background: rgba(31, 33, 43, 0.95);
+}
+
+[data-theme="dark"] .question-card {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .question-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.55);
+}
+
+/* Text */
+[data-theme="dark"] .quiz-title,
+[data-theme="dark"] .quiz-title-cell {
+    color: #e4e6eb;
+}
+
+[data-theme="dark"] .timestamp {
+    color: #a8adba;
+}
+
+/* Answer options / ordering */
+[data-theme="dark"] .answer-option,
+[data-theme="dark"] .ordering-item {
+    background: #2a2d3a;
+    border-color: #343744;
+}
+
+[data-theme="dark"] .answer-option:hover,
+[data-theme="dark"] .answer-option.selected,
+[data-theme="dark"] .ordering-item:hover {
+    background: rgba(33, 150, 243, 0.18);
+    border-color: #2196f3;
+}
+
+/* Indicators */
+[data-theme="dark"] .indicator {
+    background: #343744;
+}
+
+/* Navigation buttons */
+[data-theme="dark"] .navigation-buttons {
+    background: rgba(23, 24, 31, 0.9);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .nav-btn.prev {
+    background: #2a2d3a;
+    color: #c7cbd6;
+    border-color: #6c757d;
+}
+
+[data-theme="dark"] .nav-btn.prev:hover {
+    background: #6c757d;
+    color: #ffffff;
+}
+
+/* Score badges */
+[data-theme="dark"] .score-high {
+    background: rgba(76, 175, 80, 0.18);
+    color: #81c784;
+}
+
+[data-theme="dark"] .score-medium {
+    background: rgba(255, 193, 7, 0.18);
+    color: #ffd54f;
+}
+
+[data-theme="dark"] .score-low {
+    background: rgba(244, 67, 54, 0.18);
+    color: #e57373;
+}
+
+/* Achievements */
+[data-theme="dark"] .achievement {
+    background: rgba(255, 193, 7, 0.12);
+    border-color: rgba(255, 193, 7, 0.5);
+}
+
+/* Login */
+[data-theme="dark"] .login-container {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .login-form .form-control {
+    border-color: #343744;
+}
+
+[data-theme="dark"] .login-form .form-control::placeholder {
+    color: #7c8291;
+}
+
+/* Bootstrap component adjustments */
+[data-theme="dark"] .dropdown-menu {
+    --bs-dropdown-bg: #23252f;
+    --bs-dropdown-color: #e4e6eb;
+    --bs-dropdown-link-color: #e4e6eb;
+    --bs-dropdown-link-hover-bg: #2f3340;
+    --bs-dropdown-link-hover-color: #ffffff;
+    --bs-dropdown-link-active-bg: #667eea;
+    --bs-dropdown-link-active-color: #ffffff;
+    --bs-dropdown-border-color: #343744;
+}
+
+[data-theme="dark"] .dropdown-header {
+    color: #a8adba;
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    --bs-btn-color: #c7cbd6;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-bg: #6c757d;
+    --bs-btn-hover-border-color: #6c757d;
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-active-bg: #6c757d;
+    --bs-btn-active-border-color: #6c757d;
+    --bs-btn-active-color: #ffffff;
+}
+
+[data-theme="dark"] .badge.bg-light {
+    background-color: #3a3f52 !important;
+    color: #e4e6eb !important;
+}
+
+[data-theme="dark"] .table-light {
+    --bs-table-bg: #2a2d3a;
+    --bs-table-color: #e4e6eb;
+}
+
+[data-theme="dark"] .alert-light {
+    background-color: #2a2d3a;
+    border-color: #343744;
+    color: #e4e6eb;
+}
+
+[data-theme="dark"] .alert-info {
+    background-color: rgba(23, 162, 184, 0.15);
+    border-color: rgba(23, 162, 184, 0.35);
+    color: #7dd3e0;
+}
+
+[data-theme="dark"] .alert-danger {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.35);
+    color: #f1aeb5;
+}
+
+/* ============================================
+   LIQUID GLASS THEME (iOS-style)
+   Light frosted-glass surfaces over a soft
+   colorful mesh background.
+   ============================================ */
+[data-theme="glass"] {
+    --bs-body-color: #23273a;
+    --bs-body-color-rgb: 35, 39, 58;
+    --bs-secondary-color: #5a6072;
+    --bs-tertiary-color: #82889a;
+    --bs-emphasis-color: #16192b;
+    --bs-border-color: rgba(30, 34, 51, 0.12);
+    --bs-card-bg: rgba(255, 255, 255, 0.55);
+    --bs-card-border-color: rgba(255, 255, 255, 0.65);
+    --bs-progress-bg: rgba(30, 34, 51, 0.08);
+    --bs-table-hover-bg: rgba(30, 34, 51, 0.04);
+
+    /* Liquid-glass material tokens */
+    --glass-frost: 0.32;
+    --glass-sheen: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(255, 255, 255, 0.28) 28%,
+        rgba(255, 255, 255, 0.16) 50%,
+        rgba(255, 255, 255, 0.28) 72%,
+        rgba(255, 255, 255, 0.75) 100%);
+    --glass-bevel:
+        inset 2px -2px 1px -1px rgba(255, 255, 255, 0.95),
+        inset -2px 2px 1px -1px rgba(255, 255, 255, 0.6),
+        inset 0 0 3px 1px rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="glass"] body {
+    background:
+        radial-gradient(60% 50% at 12% 12%, rgba(102, 126, 234, 0.38) 0%, transparent 60%),
+        radial-gradient(50% 45% at 88% 8%, rgba(236, 72, 153, 0.30) 0%, transparent 60%),
+        radial-gradient(55% 50% at 82% 92%, rgba(14, 165, 233, 0.30) 0%, transparent 60%),
+        radial-gradient(45% 45% at 8% 88%, rgba(251, 191, 36, 0.26) 0%, transparent 60%),
+        linear-gradient(160deg, #eef2ff 0%, #fdf2f8 50%, #eff6ff 100%);
+    color: #23273a;
+}
+
+/* Frosted glass surfaces */
+[data-theme="glass"] .app-nav-header,
+[data-theme="glass"] .explorer-header,
+[data-theme="glass"] .quiz-container,
+[data-theme="glass"] .result-container,
+[data-theme="glass"] .dashboard-header,
+[data-theme="glass"] .progress-card,
+[data-theme="glass"] .login-container,
+[data-theme="glass"] .navigation-buttons {
+    background: var(--glass-sheen), rgba(255, 255, 255, var(--glass-frost, 0.32));
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+        var(--glass-bevel),
+        0 12px 40px rgba(31, 38, 135, 0.14);
+}
+
+/* Cards that carry a colored left accent */
+[data-theme="glass"] .question-card,
+[data-theme="glass"] .stats-card {
+    background: var(--glass-sheen), rgba(255, 255, 255, var(--glass-frost, 0.32));
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border-top: 1px solid rgba(255, 255, 255, 0.6);
+    border-right: 1px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+        var(--glass-bevel),
+        0 8px 24px rgba(31, 38, 135, 0.10);
+}
+
+[data-theme="glass"] .card:not(.explorer-card) {
+    background: var(--glass-sheen), rgba(255, 255, 255, var(--glass-frost, 0.32));
+    border-color: rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow:
+        var(--glass-bevel),
+        0 8px 24px rgba(31, 38, 135, 0.10);
+}
+
+/* Explorer folder/quiz cards — liquid glass with readable dark text */
+[data-theme="glass"] .explorer-card {
+    background: var(--glass-sheen), rgba(255, 255, 255, var(--glass-frost, 0.32));
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow:
+        var(--glass-bevel),
+        0 8px 24px rgba(31, 38, 135, 0.10);
+}
+
+[data-theme="glass"] .explorer-card:hover {
+    box-shadow:
+        var(--glass-bevel),
+        0 15px 35px rgba(31, 38, 135, 0.20);
+}
+
+[data-theme="glass"] .explorer-card .text-white,
+[data-theme="glass"] .explorer-card .card-title {
+    color: #16192b !important;
+}
+
+[data-theme="glass"] .explorer-card .card-text {
+    color: rgba(35, 39, 58, 0.72) !important;
+}
+
+[data-theme="glass"] .explorer-card .folder-icon {
+    color: #d97706;
+}
+
+[data-theme="glass"] .explorer-card .quiz-icon {
+    color: #2563eb;
+}
+
+[data-theme="glass"] .explorer-card .count-badge {
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(30, 34, 51, 0.15);
+    color: #23273a;
+}
+
+/* Breadcrumb and back button (sit on the mesh) */
+[data-theme="glass"] .breadcrumb {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass"] .breadcrumb-item a,
+[data-theme="glass"] .breadcrumb-item.active {
+    color: rgba(35, 39, 58, 0.85);
+}
+
+[data-theme="glass"] .breadcrumb-item a:hover {
+    color: #16192b;
+}
+
+[data-theme="glass"] .breadcrumb-item::before {
+    color: rgba(35, 39, 58, 0.45);
+}
+
+[data-theme="glass"] .back-button {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(30, 34, 51, 0.2);
+    color: #23273a;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass"] .back-button:hover {
+    background: rgba(255, 255, 255, 0.75);
+    color: #16192b;
+    transform: translateY(-2px);
+}
+
+/* Explorer text that was white over the old gradient */
+[data-theme="glass"] .explorer-header .text-white {
+    color: #23273a !important;
+    text-shadow: none;
+}
+
+[data-theme="glass"] .main-title {
+    color: #16192b;
+    text-shadow: none;
+}
+
+[data-theme="glass"] p.lead.text-white {
+    color: rgba(35, 39, 58, 0.75) !important;
+}
+
+[data-theme="glass"] .empty-state {
+    color: rgba(35, 39, 58, 0.7);
+}
+
+[data-theme="glass"] .empty-state .text-white {
+    color: #23273a !important;
+}
+
+/* White outline buttons become dark outlines on light glass */
+[data-theme="glass"] .btn-outline-light {
+    --bs-btn-color: #23273a;
+    --bs-btn-border-color: rgba(30, 34, 51, 0.35);
+    --bs-btn-hover-bg: rgba(30, 34, 51, 0.08);
+    --bs-btn-hover-border-color: rgba(30, 34, 51, 0.5);
+    --bs-btn-hover-color: #16192b;
+    --bs-btn-active-bg: rgba(30, 34, 51, 0.12);
+    --bs-btn-active-border-color: rgba(30, 34, 51, 0.5);
+    --bs-btn-active-color: #16192b;
+}
+
+/* Nav pills (admin child tabs) */
+[data-theme="glass"] .nav-pills .nav-link {
+    color: #23273a;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass"] .nav-pills .nav-link:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="glass"] .nav-pills .nav-link.active {
+    background: rgba(255, 255, 255, 0.85);
+    color: #16192b;
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 12px rgba(31, 38, 135, 0.12);
+}
+
+/* Answer options & ordering */
+[data-theme="glass"] .answer-option,
+[data-theme="glass"] .ordering-item {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(30, 34, 51, 0.10);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass"] .answer-option:hover,
+[data-theme="glass"] .answer-option.selected,
+[data-theme="glass"] .ordering-item:hover {
+    background: rgba(102, 126, 234, 0.12);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+/* Indicators */
+[data-theme="glass"] .indicator {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(30, 34, 51, 0.15);
+}
+
+[data-theme="glass"] .indicator.active {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-color: transparent;
+}
+
+[data-theme="glass"] .indicator.answered {
+    background: #4caf50;
+    border-color: transparent;
+}
+
+/* Previous button */
+[data-theme="glass"] .nav-btn.prev {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(30, 34, 51, 0.2);
+    color: #23273a;
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass"] .nav-btn.prev:hover {
+    background: rgba(30, 34, 51, 0.85);
+    border-color: transparent;
+    color: #ffffff;
+}
+
+/* Achievements */
+[data-theme="glass"] .achievement {
+    background: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.45);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+/* Forms */
+[data-theme="glass"] .form-control {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(30, 34, 51, 0.15);
+    color: #23273a;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="glass"] .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="glass"] .form-control::placeholder {
+    color: #82889a;
+}
+
+[data-theme="glass"] .login-form .form-control {
+    border-color: rgba(30, 34, 51, 0.15);
+}
+
+/* Tables */
+[data-theme="glass"] .table-light {
+    --bs-table-bg: rgba(255, 255, 255, 0.5);
+    --bs-table-color: #23273a;
+}
+
+/* Dropdown */
+[data-theme="glass"] .dropdown-menu {
+    --bs-dropdown-bg: rgba(255, 255, 255, 0.75);
+    --bs-dropdown-color: #23273a;
+    --bs-dropdown-link-color: #23273a;
+    --bs-dropdown-link-hover-bg: rgba(30, 34, 51, 0.06);
+    --bs-dropdown-link-hover-color: #16192b;
+    --bs-dropdown-link-active-bg: #667eea;
+    --bs-dropdown-link-active-color: #ffffff;
+    --bs-dropdown-border-color: rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--glass-bevel), 0 8px 24px rgba(31, 38, 135, 0.12);
+}
+
+[data-theme="glass"] .dropdown-header {
+    color: #5a6072;
+}
+
+/* Alerts */
+[data-theme="glass"] .alert-light {
+    background-color: rgba(255, 255, 255, 0.55);
+    border-color: rgba(255, 255, 255, 0.65);
+    color: #23273a;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass"] .alert-info {
+    background-color: rgba(13, 202, 240, 0.14);
+    border-color: rgba(13, 202, 240, 0.4);
+    color: #0c5f73;
+}
+
+[data-theme="glass"] .alert-danger {
+    background-color: rgba(220, 53, 69, 0.12);
+    border-color: rgba(220, 53, 69, 0.35);
+    color: #a3202c;
+}
+
+/* ============================================
+   LIQUID GLASS DARK THEME
+   Mostly-black mesh background with dark
+   frosted-glass surfaces.
+   ============================================ */
+[data-theme="glass-dark"] {
+    --bs-body-color: #e8eaf0;
+    --bs-body-color-rgb: 232, 234, 240;
+    --bs-body-bg: #14141e;
+    --bs-secondary-color: #a6acbd;
+    --bs-tertiary-color: #7c8291;
+    --bs-emphasis-color: #ffffff;
+    --bs-border-color: rgba(255, 255, 255, 0.10);
+    --bs-card-bg: rgba(18, 18, 28, 0.55);
+    --bs-card-border-color: rgba(255, 255, 255, 0.12);
+    --bs-progress-bg: rgba(255, 255, 255, 0.08);
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.05);
+
+    /* Dark liquid-glass material tokens */
+    --glass-sheen: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(255, 255, 255, 0.04) 30%,
+        rgba(255, 255, 255, 0.015) 50%,
+        rgba(255, 255, 255, 0.04) 70%,
+        rgba(255, 255, 255, 0.10) 100%);
+    --glass-bevel:
+        inset 1px -1px 1px -1px rgba(255, 255, 255, 0.22),
+        inset -1px 1px 1px -1px rgba(255, 255, 255, 0.05),
+        inset 0 0 4px 1px rgba(255, 255, 255, 0.06),
+        inset 0 0 14px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="glass-dark"] body {
+    background:
+        radial-gradient(60% 50% at 12% 12%, rgba(99, 102, 241, 0.22) 0%, transparent 60%),
+        radial-gradient(50% 45% at 88% 8%, rgba(236, 72, 153, 0.16) 0%, transparent 60%),
+        radial-gradient(55% 50% at 82% 92%, rgba(14, 165, 233, 0.16) 0%, transparent 60%),
+        radial-gradient(45% 45% at 8% 88%, rgba(251, 191, 36, 0.12) 0%, transparent 60%),
+        linear-gradient(160deg, #0a0a10 0%, #12121c 50%, #08080d 100%);
+    color: #e8eaf0;
+}
+
+/* Primary dark glass surfaces */
+[data-theme="glass-dark"] .app-nav-header,
+[data-theme="glass-dark"] .explorer-header,
+[data-theme="glass-dark"] .quiz-container,
+[data-theme="glass-dark"] .result-container,
+[data-theme="glass-dark"] .dashboard-header,
+[data-theme="glass-dark"] .progress-card,
+[data-theme="glass-dark"] .login-container,
+[data-theme="glass-dark"] .navigation-buttons {
+    background: var(--glass-sheen), rgba(14, 14, 21, 0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        var(--glass-bevel),
+        0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="glass-dark"] .question-card,
+[data-theme="glass-dark"] .stats-card {
+    background: var(--glass-sheen), rgba(14, 14, 21, 0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        var(--glass-bevel),
+        0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="glass-dark"] .card:not(.explorer-card) {
+    background: var(--glass-sheen), rgba(14, 14, 21, 0.55);
+    border-color: rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+    box-shadow:
+        var(--glass-bevel),
+        0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Explorer cards */
+[data-theme="glass-dark"] .explorer-card {
+    background: var(--glass-sheen), rgba(14, 14, 21, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+    box-shadow:
+        var(--glass-bevel),
+        0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="glass-dark"] .explorer-card:hover {
+    box-shadow:
+        var(--glass-bevel),
+        0 15px 35px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="glass-dark"] .explorer-card .text-white,
+[data-theme="glass-dark"] .explorer-card .card-title {
+    color: #ffffff !important;
+}
+
+[data-theme="glass-dark"] .explorer-card .card-text {
+    color: rgba(232, 234, 240, 0.75) !important;
+}
+
+[data-theme="glass-dark"] .explorer-card .folder-icon {
+    color: #f59e0b;
+}
+
+[data-theme="glass-dark"] .explorer-card .quiz-icon {
+    color: #60a5fa;
+}
+
+[data-theme="glass-dark"] .explorer-card .count-badge {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e8eaf0;
+}
+
+/* Breadcrumb and back button */
+[data-theme="glass-dark"] .breadcrumb {
+    background: rgba(14, 14, 21, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass-dark"] .back-button {
+    background: rgba(14, 14, 21, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e8eaf0;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass-dark"] .back-button:hover {
+    background: rgba(30, 32, 45, 0.6);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Nav pills */
+[data-theme="glass-dark"] .nav-pills .nav-link {
+    color: #e8eaf0;
+    background: rgba(14, 14, 21, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass-dark"] .nav-pills .nav-link:hover {
+    background: rgba(30, 32, 45, 0.6);
+}
+
+[data-theme="glass-dark"] .nav-pills .nav-link.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: var(--glass-bevel);
+}
+
+/* Answer options & ordering */
+[data-theme="glass-dark"] .answer-option,
+[data-theme="glass-dark"] .ordering-item {
+    background: rgba(22, 24, 34, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass-dark"] .answer-option:hover,
+[data-theme="glass-dark"] .answer-option.selected,
+[data-theme="glass-dark"] .ordering-item:hover {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: rgba(96, 165, 250, 0.5);
+}
+
+/* Indicators */
+[data-theme="glass-dark"] .indicator {
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Previous button */
+[data-theme="glass-dark"] .nav-btn.prev {
+    background: rgba(22, 24, 34, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e8eaf0;
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass-dark"] .nav-btn.prev:hover {
+    background: rgba(108, 117, 125, 0.9);
+    border-color: transparent;
+    color: #ffffff;
+}
+
+/* Achievements */
+[data-theme="glass-dark"] .achievement {
+    background: rgba(255, 193, 7, 0.10);
+    border-color: rgba(255, 193, 7, 0.35);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+/* Forms */
+[data-theme="glass-dark"] .form-control {
+    background-color: rgba(22, 24, 34, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8eaf0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="glass-dark"] .form-control:focus {
+    background-color: rgba(30, 32, 45, 0.8);
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.3);
+}
+
+[data-theme="glass-dark"] .form-control::placeholder {
+    color: #7c8291;
+}
+
+[data-theme="glass-dark"] .login-form .form-control {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Tables */
+[data-theme="glass-dark"] .table-light {
+    --bs-table-bg: rgba(22, 24, 34, 0.6);
+    --bs-table-color: #e8eaf0;
+}
+
+/* Dropdown */
+[data-theme="glass-dark"] .dropdown-menu {
+    --bs-dropdown-bg: rgba(22, 24, 34, 0.75);
+    --bs-dropdown-color: #e8eaf0;
+    --bs-dropdown-link-color: #e8eaf0;
+    --bs-dropdown-link-hover-bg: rgba(255, 255, 255, 0.08);
+    --bs-dropdown-link-hover-color: #ffffff;
+    --bs-dropdown-link-active-bg: #667eea;
+    --bs-dropdown-link-active-color: #ffffff;
+    --bs-dropdown-border-color: rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: var(--glass-bevel), 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="glass-dark"] .dropdown-header {
+    color: #a6acbd;
+}
+
+/* Alerts */
+[data-theme="glass-dark"] .alert-light {
+    background-color: rgba(22, 24, 34, 0.55);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8eaf0;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass-dark"] .alert-info {
+    background-color: rgba(13, 202, 240, 0.12);
+    border-color: rgba(13, 202, 240, 0.3);
+    color: #7dd3e0;
+}
+
+[data-theme="glass-dark"] .alert-danger {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.35);
+    color: #f1aeb5;
+}
+
+/* Text */
+[data-theme="glass-dark"] .quiz-title,
+[data-theme="glass-dark"] .quiz-title-cell {
+    color: #e8eaf0;
+}
+
+[data-theme="glass-dark"] .timestamp {
+    color: #a6acbd;
+}
+
+/* Score badges */
+[data-theme="glass-dark"] .score-high {
+    background: rgba(76, 175, 80, 0.18);
+    color: #81c784;
+}
+
+[data-theme="glass-dark"] .score-medium {
+    background: rgba(255, 193, 7, 0.18);
+    color: #ffd54f;
+}
+
+[data-theme="glass-dark"] .score-low {
+    background: rgba(244, 67, 54, 0.18);
+    color: #e57373;
+}
+
+/* Buttons & badges */
+[data-theme="glass-dark"] .btn-outline-secondary {
+    --bs-btn-color: #c7cbd6;
+    --bs-btn-border-color: rgba(255, 255, 255, 0.4);
+    --bs-btn-hover-bg: rgba(255, 255, 255, 0.1);
+    --bs-btn-hover-border-color: rgba(255, 255, 255, 0.5);
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-active-bg: rgba(255, 255, 255, 0.15);
+    --bs-btn-active-border-color: rgba(255, 255, 255, 0.5);
+    --bs-btn-active-color: #ffffff;
+}
+
+[data-theme="glass-dark"] .badge.bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #e8eaf0 !important;
+}
+
+/* ============================================
+   GLASS THEME DROPDOWN FIX
+   backdrop-filter creates a stacking context on
+   the glass headers, which traps the theme
+   dropdown behind later sibling cards. Raise the
+   headers above those cards so the dropdown is
+   visible.
+   ============================================ */
+[data-theme="glass"] .app-nav-header,
+[data-theme="glass"] .explorer-header,
+[data-theme="glass-dark"] .app-nav-header,
+[data-theme="glass-dark"] .explorer-header {
+    position: relative;
+    z-index: 1030;
+}

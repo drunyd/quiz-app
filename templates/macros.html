@@ -1,0 +1,38 @@
+{#
+    Reusable UI macros.
+    To add a new theme later:
+      1. Add a dropdown item below with a data-theme value.
+      2. Add the same value to the THEMES array in static/theme.js.
+      3. Add a [data-theme="..."] override section in static/style.css.
+#}
+{% macro theme_chooser(style='outline-secondary') %}
+<div class="dropdown theme-chooser d-inline-block me-2 mb-2 mb-md-0">
+    <button class="btn btn-{{ style }} btn-app-friendly" type="button"
+            data-bs-toggle="dropdown" aria-expanded="false" title="Change theme">
+        <i class="fas fa-palette me-1"></i> Theme
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><h6 class="dropdown-header">Themes</h6></li>
+        <li>
+            <a class="dropdown-item theme-option" href="#" data-theme="original">
+                <i class="fas fa-sun me-2"></i> Original
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item theme-option" href="#" data-theme="dark">
+                <i class="fas fa-moon me-2"></i> Dark
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item theme-option" href="#" data-theme="glass">
+                <i class="fas fa-gem me-2"></i> Liquid Glass
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item theme-option" href="#" data-theme="glass-dark">
+                <i class="fas fa-circle-half-stroke me-2"></i> Liquid Glass Dark
+            </a>
+        </li>
+    </ul>
+</div>
+{% endmacro %}

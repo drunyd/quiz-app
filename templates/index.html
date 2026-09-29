@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import theme_chooser %}
 
 {% block title %}Quiz Explorer - {{ contents.current_path }}{% endblock %}
 
@@ -21,6 +22,7 @@
                         <a href="/dashboard" class="btn btn-outline-light me-2 mb-2 mb-md-0 btn-mobile-friendly">
                             <i class="fas fa-chart-bar me-1"></i> Dashboard
                         </a>
+                        {{ theme_chooser('outline-light') }}
                         <a href="/logout" class="btn btn-outline-light btn-mobile-friendly">
                             <i class="fas fa-sign-out-alt me-1"></i> Logout
                         </a>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import theme_chooser %}
 
 {% block title %}My Dashboard - Quiz App{% endblock %}
 
@@ -16,6 +17,7 @@
                         <a href="/" class="btn btn-primary me-2 btn-app-friendly">
                             <i class="fas fa-th me-1"></i> Take Quiz
                         </a>
+                        {{ theme_chooser('outline-secondary') }}
                         <a href="/logout" class="btn btn-outline-danger btn-app-friendly">
                             <i class="fas fa-sign-out-alt me-1"></i> Logout
                         </a>

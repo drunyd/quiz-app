@@ -234,6 +234,91 @@ def get_breadcrumb_data(path: str = ""):
     return breadcrumb
 
 
+WIKI_ROOT_SUFFIX = "_wiki"
+WIKI_EXTENSIONS = (".html", ".htm")
+
+
+def count_wiki_files(folder: str) -> int:
+    """Count HTML source files under a folder, recursively."""
+    total = 0
+    for _root, _dirs, files in os.walk(folder):
+        total += len([f for f in files if f.lower().endswith(WIKI_EXTENSIONS)])
+    return total
+
+
+def get_wiki_directory_contents(path: str = ""):
+    """Browse the *_wiki source trees the same way quizzes are browsed."""
+    if not path:
+        folders = []
+        if os.path.isdir(QUIZ_DIR):
+            for item in sorted(os.listdir(QUIZ_DIR)):
+                item_path = os.path.join(QUIZ_DIR, item)
+                if not (os.path.isdir(item_path) and item.endswith(WIKI_ROOT_SUFFIX)):
+                    continue
+                wiki_count = count_wiki_files(item_path)
+                if wiki_count:
+                    folders.append({
+                        'name': item,
+                        'path': item,
+                        'wiki_count': wiki_count,
+                    })
+        return {
+            "folders": folders,
+            "files": [],
+            "parent_path": None,
+            "current_path": "Wikis",
+        }
+
+    target_dir = os.path.join(QUIZ_DIR, path)
+    if not os.path.isdir(target_dir):
+        return {"folders": [], "files": [], "parent_path": None, "current_path": "Unknown"}
+
+    folders = []
+    files = []
+
+    for item in sorted(os.listdir(target_dir)):
+        item_path = os.path.join(target_dir, item)
+        rel_path = os.path.join(path, item)
+
+        if os.path.isdir(item_path):
+            wiki_count = count_wiki_files(item_path)
+            if wiki_count:
+                folders.append({
+                    'name': item,
+                    'path': rel_path,
+                    'wiki_count': wiki_count,
+                })
+        elif item.lower().endswith(WIKI_EXTENSIONS):
+            files.append({
+                'name': item,
+                'path': rel_path,
+                'display_name': item.rsplit('.', 1)[0].replace('.', ' ').title(),
+            })
+
+    parent_path = os.path.dirname(path) if path and path != "." else None
+
+    return {
+        "folders": folders,
+        "files": files,
+        "parent_path": parent_path,
+        "current_path": path or "Wikis",
+    }
+
+
+def get_wiki_breadcrumb_data(path: str = ""):
+    """Generate breadcrumb navigation for the wiki explorer."""
+    breadcrumb = [{"name": "Wikis", "path": ""}]
+    if not path:
+        return breadcrumb
+
+    current_path = ""
+    for part in path.split('/'):
+        current_path = os.path.join(current_path, part) if current_path else part
+        breadcrumb.append({"name": part, "path": current_path})
+
+    return breadcrumb
+
+
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -309,6 +394,38 @@ def source_file(request: Request, source_path: str):
         raise HTTPException(status_code=404)
 
     return FileResponse(target)
+
+
+@app.get("/wikis", response_class=HTMLResponse)
+def wikis_root(request: Request):
+    """Browse the top-level wiki source folders."""
+    return render_wikis(request, "")
+
+
+@app.get("/wikis/{path:path}", response_class=HTMLResponse)
+def wikis(request: Request, path: str = ""):
+    """Browse wiki source folders and read their articles."""
+    return render_wikis(request, path)
+
+
+def render_wikis(request: Request, path: str):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+
+    contents = get_wiki_directory_contents(path)
+    breadcrumb = get_wiki_breadcrumb_data(path)
+
+    return templates.TemplateResponse(
+        "wikis.html",
+        {
+            "request": request,
+            "contents": contents,
+            "breadcrumb": breadcrumb,
+            "user": user,
+            "explorer_mode": True,
+        },
+    )
 
 
 @app.get("/dashboard", response_class=HTMLResponse)

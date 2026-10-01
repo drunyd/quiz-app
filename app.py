@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException, Depends, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
@@ -12,8 +12,9 @@ import sqlite3
 import hashlib
 from datetime import datetime
 from typing import Optional
+from urllib.parse import quote
 
-QUIZ_DIR = "quizzes"
+QUIZ_DIR = os.environ.get("QUIZ_DIR", "quizzes")
 USERS_FILE = "users.json"
 DB_FILE = "quiz_app.db"
 
@@ -140,6 +141,39 @@ def load_quiz(filename: str):
         return yaml.safe_load(f)
 
 
+# Web assets that may be served as a quiz's source material
+SOURCE_EXTENSIONS = {
+    ".html", ".htm", ".css", ".js",
+    ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".pdf",
+}
+
+
+def get_quiz_source(quiz_path: str, quiz: Optional[dict] = None):
+    """Return (source_path, source_url) for a quiz's Source attribute.
+
+    Source is relative to QUIZ_DIR and is ignored (returns None, None) if the
+    attribute is missing, escapes QUIZ_DIR, or points at a missing file.
+    """
+    if quiz is None:
+        try:
+            quiz = load_quiz(quiz_path)
+        except (OSError, yaml.YAMLError):
+            return None, None
+
+    source = quiz.get("Source") if isinstance(quiz, dict) else None
+    if not source:
+        return None, None
+
+    source = str(source).strip().replace("\\", "/").lstrip("/")
+    if not source or ".." in source.split("/"):
+        return None, None
+
+    if not os.path.isfile(os.path.join(QUIZ_DIR, source)):
+        return None, None
+
+    return source, "/source/" + quote(source, safe="/")
+
+
 def get_directory_contents(path: str = ""):
     """Get folders and quiz files at current directory level"""
     target_dir = os.path.join(QUIZ_DIR, path) if path else QUIZ_DIR
@@ -257,6 +291,26 @@ def browse(request: Request, path: str = ""):
     )
 
 
+@app.get("/source/{source_path:path}")
+def source_file(request: Request, source_path: str):
+    """Serve a quiz's source material (wiki HTML plus any relative assets)."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+
+    root = os.path.realpath(QUIZ_DIR)
+    target = os.path.realpath(os.path.join(root, source_path))
+
+    if target != root and not target.startswith(root + os.sep):
+        raise HTTPException(status_code=404)
+
+    extension = os.path.splitext(target)[1].lower()
+    if extension not in SOURCE_EXTENSIONS or not os.path.isfile(target):
+        raise HTTPException(status_code=404)
+
+    return FileResponse(target)
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request):
     user = get_current_user(request)
@@ -348,6 +402,8 @@ def quiz(request: Request, quiz_path: str):
     if not isinstance(questions, list):
         questions = [questions]
 
+    source_path, source_url = get_quiz_source(quiz_path, quiz)
+
     # Randomly select and shuffle questions
     questions, original_indices = select_and_shuffle_questions(questions)
 
@@ -373,6 +429,7 @@ def quiz(request: Request, quiz_path: str):
             "questions": questions,
             "original_indices": original_indices,
             "shuffled_state": shuffled_state,
+            "source_url": source_url,
             "user": user,
         },
     )
@@ -522,6 +579,8 @@ async def submit(request: Request, quiz_path: str):
     # Save the quiz attempt
     save_quiz_attempt(user['username'], quiz_path, score, total)
 
+    source_path, source_url = get_quiz_source(quiz_path)
+
     return templates.TemplateResponse(
         "result.html",
         {
@@ -531,5 +590,6 @@ async def submit(request: Request, quiz_path: str):
             "user": user,
             "incorrect_answers": incorrect_answers,
             "quiz_name": quiz_path,
+            "source_url": source_url,
         },
     )

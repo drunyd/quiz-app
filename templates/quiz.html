@@ -6,7 +6,15 @@
 <div class="quiz-container p-4 p-md-5">
     <div class="text-center mb-4">
         <h1 class="quiz-title display-5">
-            <i class="fas fa-brain me-3 text-primary"></i>{{ title }}
+            <i class="fas fa-brain me-3 text-primary"></i>
+            {% if source_url %}
+            <a href="{{ source_url }}" target="_blank" rel="noopener" class="quiz-title-link"
+               title="Open the source material in a new tab">{{ title }}
+                <i class="fas fa-external-link-alt fa-sm ms-2"></i>
+            </a>
+            {% else %}
+            {{ title }}
+            {% endif %}
         </h1>
         <div class="alert alert-info d-inline-block" role="alert">
             <i class="fas fa-info-circle me-2"></i>

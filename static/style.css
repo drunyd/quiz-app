@@ -61,6 +61,51 @@ body {
     border-radius: 10px;
 }
 
+/* Keep the header action row on a single line on desktop.
+   Buttons shrink and the gaps tighten so even a full button set
+   (Dashboard / Quizzes / Wikis / Theme / Logout) fits one row. */
+@media (min-width: 768px) {
+    /* Let the action column size to its content and take the row's spare
+       space from the title column, so the buttons stay on one line. */
+    .app-nav-header .col-md-6:first-child,
+    .explorer-header .col-md-6:first-child {
+        flex: 1 1 auto;
+        width: auto;
+        max-width: none;
+        min-width: 0;
+    }
+
+    .app-nav-header .col-md-6:last-child,
+    .explorer-header .col-md-6:last-child {
+        flex: 1 1 auto;
+        width: auto;
+        max-width: none;
+        min-width: max-content;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .app-nav-header .btn,
+    .explorer-header .btn {
+        min-height: 34px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .app-nav-header .btn i,
+    .explorer-header .btn i {
+        margin-right: 0.25rem !important;
+    }
+
+    .app-nav-header .me-2,
+    .explorer-header .me-2 {
+        margin-right: 0.4rem !important;
+    }
+}
+
 /* ============================================
    SCORE BADGES
    ============================================ */

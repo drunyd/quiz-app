@@ -273,6 +273,7 @@ body {
 .question-card.multiplechoice { border-left-color: #4ecdc4; }
 .question-card.word { border-left-color: #45b7d1; }
 .question-card.ordering { border-left-color: #9c27b0; }
+.question-card.pairing { border-left-color: #ffd166; }
 
 .question-number {
     background: linear-gradient(45deg, #667eea, #764ba2);
@@ -1795,4 +1796,547 @@ body {
 [data-theme="glass-dark"] .explorer-header {
     position: relative;
     z-index: 1030;
+}
+
+/* ============================================
+   VALORANT THEME
+   Tactical-shooter inspired: dark navy surfaces,
+   red accents, sharp angular panels, condensed
+   uppercase type and a faint diagonal texture.
+   ============================================ */
+[data-theme="valorant"] {
+    --val-red: #FF4655;
+    --val-red-dark: #BD3944;
+    --val-navy: #0F1923;
+    --val-navy-2: #1B2733;
+    --val-navy-3: #22303D;
+    --val-cream: #ECE8E1;
+    --val-cyan: #00E0C8;
+    --val-gold: #FFD166;
+    --val-line: #2A3947;
+
+    --bs-body-color: #ECE8E1;
+    --bs-body-color-rgb: 236, 232, 225;
+    --bs-body-bg: #0F1923;
+    --bs-secondary-color: #A9B4BE;
+    --bs-tertiary-color: #7C8894;
+    --bs-emphasis-color: #ffffff;
+    --bs-border-color: #2A3947;
+    --bs-card-bg: #1B2733;
+    --bs-card-border-color: #2A3947;
+    --bs-card-cap-bg: #22303D;
+    --bs-progress-bg: #22303D;
+    --bs-table-hover-bg: rgba(255, 70, 85, 0.08);
+}
+
+[data-theme="valorant"] body {
+    font-family: 'Rajdhani', 'Poppins', sans-serif;
+    background:
+        repeating-linear-gradient(115deg, rgba(255, 70, 85, 0.05) 0 1px, transparent 1px 150px),
+        radial-gradient(1100px 520px at 12% -8%, rgba(255, 70, 85, 0.20) 0%, transparent 60%),
+        radial-gradient(900px 520px at 100% 105%, rgba(0, 224, 200, 0.10) 0%, transparent 55%),
+        linear-gradient(160deg, #0F1923 0%, #0B131B 55%, #131E28 100%);
+    color: #ECE8E1;
+}
+
+[data-theme="valorant"] ::selection {
+    background: #FF4655;
+    color: #ffffff;
+}
+
+[data-theme="valorant"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+[data-theme="valorant"] ::-webkit-scrollbar-track { background: #0B131B; }
+[data-theme="valorant"] ::-webkit-scrollbar-thumb { background: #2A3947; }
+[data-theme="valorant"] ::-webkit-scrollbar-thumb:hover { background: #FF4655; }
+
+/* Condensed uppercase display type */
+[data-theme="valorant"] h1,
+[data-theme="valorant"] h2,
+[data-theme="valorant"] h3,
+[data-theme="valorant"] h4,
+[data-theme="valorant"] h5,
+[data-theme="valorant"] h6,
+[data-theme="valorant"] .quiz-title,
+[data-theme="valorant"] .main-title,
+[data-theme="valorant"] .result-message {
+    font-family: 'Anton', 'Rajdhani', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Headers */
+[data-theme="valorant"] .app-nav-header {
+    background: linear-gradient(180deg, #1B2733 0%, #16212B 100%);
+    border: 1px solid var(--val-line);
+    border-left: 4px solid var(--val-red);
+    border-radius: 3px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="valorant"] .explorer-header {
+    background: rgba(15, 25, 35, 0.78);
+    border: 1px solid rgba(255, 70, 85, 0.35);
+    border-radius: 3px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 1030;
+}
+
+/* Surfaces */
+[data-theme="valorant"] .quiz-container,
+[data-theme="valorant"] .result-container,
+[data-theme="valorant"] .dashboard-header,
+[data-theme="valorant"] .progress-card,
+[data-theme="valorant"] .question-card,
+[data-theme="valorant"] .stats-card,
+[data-theme="valorant"] .login-container {
+    background: linear-gradient(180deg, #1B2733 0%, #16212B 100%);
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="valorant"] .card:not(.explorer-card) {
+    background: #1B2733;
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
+}
+
+[data-theme="valorant"] .card-header {
+    background: #22303D;
+    border-bottom: 1px solid var(--val-line);
+}
+
+[data-theme="valorant"] .card-header.bg-warning {
+    background: #FF4655 !important;
+    color: #ffffff !important;
+}
+
+/* Text */
+[data-theme="valorant"] .quiz-title {
+    color: #ECE8E1;
+    text-shadow: none;
+}
+
+[data-theme="valorant"] .quiz-title-cell { color: #ECE8E1; }
+[data-theme="valorant"] .timestamp { color: #A9B4BE; }
+
+[data-theme="valorant"] .quiz-title-link {
+    border-bottom-color: rgba(255, 70, 85, 0.6);
+}
+
+[data-theme="valorant"] .quiz-title-link:hover {
+    color: #FF4655;
+    border-bottom-color: #FF4655;
+}
+
+/* Question card accents */
+[data-theme="valorant"] .question-card.singlechoice { border-left-color: #FF4655; }
+[data-theme="valorant"] .question-card.multiplechoice { border-left-color: #00E0C8; }
+[data-theme="valorant"] .question-card.word { border-left-color: #ECE8E1; }
+[data-theme="valorant"] .question-card.ordering { border-left-color: #C79BFF; }
+[data-theme="valorant"] .question-card.pairing { border-left-color: #FFD166; }
+
+[data-theme="valorant"] .question-number {
+    background: #FF4655;
+    border-radius: 2px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 72% 100%, 0 100%);
+}
+
+/* Answer options / ordering / pairing */
+[data-theme="valorant"] .answer-option,
+[data-theme="valorant"] .ordering-item,
+[data-theme="valorant"] .pairing-slot {
+    background: #1B2733;
+    border: 1px solid var(--val-line);
+    border-radius: 2px;
+    color: #ECE8E1;
+}
+
+[data-theme="valorant"] .answer-option:hover,
+[data-theme="valorant"] .answer-option.selected,
+[data-theme="valorant"] .ordering-item:hover,
+[data-theme="valorant"] .pairing-slot:hover {
+    background: rgba(255, 70, 85, 0.14);
+    border-color: #FF4655;
+}
+
+[data-theme="valorant"] .answer-option.selected {
+    box-shadow: inset 3px 0 0 #FF4655;
+}
+
+[data-theme="valorant"] .answer-option .form-check-label { color: #ECE8E1; }
+
+[data-theme="valorant"] .order-number {
+    background: #FF4655;
+    border-radius: 2px;
+}
+
+[data-theme="valorant"] .pairing-slot-text { color: #ECE8E1; }
+
+[data-theme="valorant"] .pairing-column-header {
+    color: #FF4655;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.14em;
+}
+
+[data-theme="valorant"] .pairing-drop {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: #3A4A5A;
+    border-radius: 2px;
+}
+
+[data-theme="valorant"] .pairing-drop.drag-over {
+    border-color: #FF4655;
+    background: rgba(255, 70, 85, 0.12);
+}
+
+[data-theme="valorant"] .pairing-chip {
+    background: linear-gradient(135deg, #FF4655, #BD3944);
+    border-radius: 2px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+[data-theme="valorant"] .pairing-chip.selected { outline-color: #ECE8E1; }
+
+/* Indicators */
+[data-theme="valorant"] .indicator {
+    background: #2A3947;
+    border-radius: 2px;
+}
+
+[data-theme="valorant"] .indicator.active {
+    background: #FF4655;
+    border-radius: 2px;
+}
+
+[data-theme="valorant"] .indicator.answered { background: #00E0C8; }
+
+/* Form controls */
+[data-theme="valorant"] .form-control,
+[data-theme="valorant"] .form-select {
+    background-color: #16212B;
+    border: 1px solid #3A4A5A;
+    color: #ECE8E1;
+    border-radius: 2px;
+}
+
+[data-theme="valorant"] .form-control::placeholder { color: #7C8894; }
+
+[data-theme="valorant"] .form-control:focus,
+[data-theme="valorant"] .form-select:focus {
+    background-color: #16212B;
+    color: #ECE8E1;
+    border-color: #FF4655;
+    box-shadow: 0 0 0 0.2rem rgba(255, 70, 85, 0.25);
+}
+
+[data-theme="valorant"] .form-check-input:checked {
+    background-color: #FF4655;
+    border-color: #FF4655;
+}
+
+[data-theme="valorant"] .form-check-input:focus {
+    border-color: #FF4655;
+    box-shadow: 0 0 0 0.2rem rgba(255, 70, 85, 0.25);
+}
+
+/* Navigation buttons */
+[data-theme="valorant"] .navigation-buttons {
+    background: rgba(15, 25, 35, 0.92);
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="valorant"] .nav-btn {
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+[data-theme="valorant"] .nav-btn.prev {
+    background: #1B2733;
+    border-color: #3A4A5A;
+    color: #ECE8E1;
+}
+
+[data-theme="valorant"] .nav-btn.prev:hover {
+    background: #22303D;
+    border-color: #FF4655;
+    color: #ffffff;
+}
+
+[data-theme="valorant"] .nav-btn.next {
+    background: #FF4655;
+    color: #ffffff;
+    border: none;
+}
+
+[data-theme="valorant"] .nav-btn.next:hover { background: #E03A48; }
+
+[data-theme="valorant"] .nav-btn.submit {
+    background: #00E0C8;
+    color: #062A28;
+    border: none;
+}
+
+[data-theme="valorant"] .nav-btn.submit:hover { background: #24F0D8; }
+
+/* Progress */
+[data-theme="valorant"] .progress { background: #22303D; border-radius: 2px; }
+[data-theme="valorant"] .progress-bar:not([class*="bg-"]) { background-color: #FF4655; }
+
+/* Score circle */
+[data-theme="valorant"] .score-circle.perfect { background: linear-gradient(135deg, #00E0C8, #0F9E8F); }
+[data-theme="valorant"] .score-circle.good { background: linear-gradient(135deg, #FF4655, #BD3944); }
+[data-theme="valorant"] .score-circle.poor { background: linear-gradient(135deg, #FF9F1C, #E76F00); }
+
+/* Stats cards */
+[data-theme="valorant"] .stats-card.correct { border-left-color: #00E0C8; }
+[data-theme="valorant"] .stats-card.total { border-left-color: #FF4655; }
+[data-theme="valorant"] .stats-card.percentage { border-left-color: #FFD166; }
+
+[data-theme="valorant"] .stat-card {
+    background: linear-gradient(135deg, #1B2733, #22303D);
+    border: 1px solid var(--val-line);
+    border-left: 4px solid #FF4655;
+    border-radius: 3px;
+    color: #ECE8E1;
+}
+
+/* Action buttons */
+[data-theme="valorant"] .action-btn {
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+}
+
+/* Breadcrumb / back button / nav pills */
+[data-theme="valorant"] .breadcrumb {
+    background: rgba(15, 25, 35, 0.72);
+    border: 1px solid var(--val-line);
+    border-radius: 2px;
+}
+
+[data-theme="valorant"] .breadcrumb-item a { color: #ECE8E1; }
+[data-theme="valorant"] .breadcrumb-item a:hover { color: #FF4655; }
+[data-theme="valorant"] .breadcrumb-item.active { color: #FF4655; }
+[data-theme="valorant"] .breadcrumb-item::before { color: #FF4655; }
+
+[data-theme="valorant"] .back-button {
+    background: rgba(15, 25, 35, 0.8);
+    border: 1px solid #3A4A5A;
+    border-radius: 2px;
+    color: #ECE8E1;
+}
+
+[data-theme="valorant"] .back-button:hover {
+    background: #22303D;
+    border-color: #FF4655;
+    color: #ffffff;
+}
+
+[data-theme="valorant"] .nav-pills .nav-link {
+    background: rgba(15, 25, 35, 0.8);
+    border: 1px solid #3A4A5A;
+    border-radius: 2px;
+    color: #ECE8E1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+[data-theme="valorant"] .nav-pills .nav-link:hover { background: #22303D; }
+
+[data-theme="valorant"] .nav-pills .nav-link.active {
+    background: #FF4655;
+    border-color: #FF4655;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+/* Explorer cards */
+[data-theme="valorant"] .explorer-card {
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
+}
+
+[data-theme="valorant"] .folder-card {
+    background: linear-gradient(135deg, #22303D 0%, #1B2733 100%);
+    border-top: 3px solid #FF4655;
+}
+
+[data-theme="valorant"] .quiz-card {
+    background: linear-gradient(135deg, #1B2733 0%, #16212B 100%);
+    border-top: 3px solid #00E0C8;
+}
+
+[data-theme="valorant"] .explorer-card .folder-icon { color: #FF4655; }
+[data-theme="valorant"] .explorer-card .quiz-icon { color: #00E0C8; }
+
+[data-theme="valorant"] .explorer-card .count-badge {
+    background: rgba(255, 70, 85, 0.12);
+    border: 1px solid rgba(255, 70, 85, 0.5);
+    color: #FF8A94;
+}
+
+/* Achievements and score badges */
+[data-theme="valorant"] .achievement {
+    background: rgba(255, 70, 85, 0.10);
+    border: 1px solid rgba(255, 70, 85, 0.45);
+    border-radius: 2px;
+    color: #ECE8E1;
+}
+
+[data-theme="valorant"] .achievement i { color: #FF4655; }
+
+[data-theme="valorant"] .score-high { background: rgba(0, 224, 200, 0.15); color: #4FE9D6; }
+[data-theme="valorant"] .score-medium { background: rgba(255, 209, 102, 0.15); color: #FFD166; }
+[data-theme="valorant"] .score-low { background: rgba(255, 70, 85, 0.15); color: #FF8A94; }
+
+/* Login */
+[data-theme="valorant"] .login-container {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="valorant"] .login-header {
+    background: linear-gradient(135deg, #FF4655, #BD3944);
+}
+
+[data-theme="valorant"] .btn-login {
+    background: #FF4655;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+}
+
+[data-theme="valorant"] .btn-login:hover { background: #E03A48; }
+
+/* Bootstrap components */
+[data-theme="valorant"] .dropdown-menu {
+    --bs-dropdown-bg: #16212B;
+    --bs-dropdown-color: #ECE8E1;
+    --bs-dropdown-link-color: #ECE8E1;
+    --bs-dropdown-link-hover-bg: rgba(255, 70, 85, 0.16);
+    --bs-dropdown-link-hover-color: #ffffff;
+    --bs-dropdown-link-active-bg: #FF4655;
+    --bs-dropdown-link-active-color: #ffffff;
+    --bs-dropdown-border-color: #2A3947;
+    border-radius: 2px;
+}
+
+[data-theme="valorant"] .dropdown-header {
+    color: #FF4655;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+[data-theme="valorant"] .dropdown-item.theme-option.active::after { color: #FF4655; }
+
+[data-theme="valorant"] .btn-outline-secondary,
+[data-theme="valorant"] .btn-outline-primary,
+[data-theme="valorant"] .btn-outline-light,
+[data-theme="valorant"] .btn-outline-info {
+    --bs-btn-color: #ECE8E1;
+    --bs-btn-border-color: #3A4A5A;
+    --bs-btn-hover-bg: rgba(255, 70, 85, 0.16);
+    --bs-btn-hover-border-color: #FF4655;
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-active-bg: #FF4655;
+    --bs-btn-active-border-color: #FF4655;
+    --bs-btn-active-color: #ffffff;
+}
+
+[data-theme="valorant"] .btn-outline-danger {
+    --bs-btn-color: #FF8A94;
+    --bs-btn-border-color: rgba(255, 70, 85, 0.6);
+    --bs-btn-hover-bg: #FF4655;
+    --bs-btn-hover-border-color: #FF4655;
+    --bs-btn-hover-color: #ffffff;
+}
+
+[data-theme="valorant"] .btn-primary {
+    --bs-btn-bg: #FF4655;
+    --bs-btn-border-color: #FF4655;
+    --bs-btn-hover-bg: #E03A48;
+    --bs-btn-hover-border-color: #E03A48;
+}
+
+[data-theme="valorant"] .badge.bg-light {
+    background-color: #22303D !important;
+    color: #ECE8E1 !important;
+}
+
+[data-theme="valorant"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #ECE8E1;
+    --bs-table-border-color: #2A3947;
+}
+
+[data-theme="valorant"] .table-light {
+    --bs-table-bg: #22303D;
+    --bs-table-color: #ECE8E1;
+}
+
+[data-theme="valorant"] .alert-light {
+    background-color: #1B2733;
+    border-color: #2A3947;
+    color: #ECE8E1;
+}
+
+[data-theme="valorant"] .alert-info {
+    background-color: rgba(0, 224, 200, 0.12);
+    border-color: rgba(0, 224, 200, 0.35);
+    color: #7CE9DB;
+}
+
+[data-theme="valorant"] .alert-danger {
+    background-color: rgba(255, 70, 85, 0.12);
+    border-color: rgba(255, 70, 85, 0.35);
+    color: #FF8A94;
+}
+
+[data-theme="valorant"] .alert-warning {
+    background-color: rgba(255, 209, 102, 0.12);
+    border-color: rgba(255, 209, 102, 0.4);
+    color: #FFD166;
+}
+
+/* Badges and the theme chooser button */
+[data-theme="valorant"] .badge.bg-primary {
+    background-color: #FF4655 !important;
+    color: #ffffff;
+}
+
+[data-theme="valorant"] .badge.bg-danger {
+    background-color: #BD3944 !important;
+    color: #ffffff;
+}
+
+[data-theme="valorant"] .badge.bg-info {
+    background-color: #00E0C8 !important;
+    color: #062A28;
+}
+
+[data-theme="valorant"] .theme-chooser .btn {
+    background: #16212B;
+    border: 1px solid #3A4A5A;
+    color: #ECE8E1;
+}
+
+[data-theme="valorant"] .theme-chooser .btn:hover {
+    border-color: #FF4655;
+    color: #ffffff;
 }

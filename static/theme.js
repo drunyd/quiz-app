@@ -4,7 +4,7 @@
     var STORAGE_KEY = 'quiz-theme';
 
     // Theme registry — add new theme names here when adding themes.
-    var THEMES = ['original', 'dark', 'glass', 'glass-dark'];
+    var THEMES = ['original', 'dark', 'glass', 'glass-dark', 'valorant'];
 
     function currentTheme() {
         var attr = document.documentElement.getAttribute('data-theme');

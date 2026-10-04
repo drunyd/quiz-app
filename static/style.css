@@ -454,6 +454,115 @@ body {
 }
 
 /* ============================================
+   PAIRING QUESTIONS
+   ============================================ */
+.pairing-column-header {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.pairing-slot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.pairing-slot:hover {
+    border-color: #2196f3;
+}
+
+.pairing-slot-text {
+    flex: 1 1 55%;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+}
+
+.pairing-drop {
+    flex: 1 1 45%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border: 2px dashed #ced4da;
+    border-radius: 8px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s ease;
+}
+
+.pairing-drop.drag-over {
+    border-color: #2196f3;
+    background: rgba(33, 150, 243, 0.12);
+}
+
+.pairing-slot:has(.pairing-chip) .pairing-drop {
+    border-style: solid;
+    border-color: #2196f3;
+}
+
+.pairing-pool {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px;
+    min-height: 44px;
+}
+
+.pairing-chip {
+    width: 100%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    cursor: grab;
+    user-select: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.pairing-drop .pairing-chip {
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.pairing-chip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.pairing-chip.selected {
+    outline: 3px solid #ffc107;
+    outline-offset: 2px;
+}
+
+.pairing-chip.dragging {
+    opacity: 0.5;
+}
+
+@media (max-width: 575px) {
+    .pairing-slot {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pairing-drop {
+        min-height: 40px;
+    }
+}
+
+/* ============================================
    RESULTS (result.html)
    ============================================ */
 .score-circle {
@@ -819,6 +928,33 @@ body {
     border-color: #343744;
 }
 
+[data-theme="dark"] .pairing-slot {
+    background: #2a2d3a;
+    border-color: #343744;
+}
+
+[data-theme="dark"] .pairing-slot:hover {
+    border-color: #2196f3;
+}
+
+[data-theme="dark"] .pairing-slot-text {
+    color: #e4e6eb;
+}
+
+[data-theme="dark"] .pairing-column-header {
+    color: #a8adba;
+}
+
+[data-theme="dark"] .pairing-drop {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: #4a4f61;
+}
+
+[data-theme="dark"] .pairing-drop.drag-over {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.15);
+}
+
 [data-theme="dark"] .answer-option:hover,
 [data-theme="dark"] .answer-option.selected,
 [data-theme="dark"] .ordering-item:hover {
@@ -1164,6 +1300,26 @@ body {
     box-shadow: var(--glass-bevel);
 }
 
+[data-theme="glass"] .pairing-slot {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(30, 34, 51, 0.10);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="glass"] .pairing-slot-text {
+    color: #23273a;
+}
+
+[data-theme="glass"] .pairing-column-header {
+    color: #5a6072;
+}
+
+[data-theme="glass"] .pairing-drop {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(30, 34, 51, 0.20);
+}
+
 [data-theme="glass"] .answer-option:hover,
 [data-theme="glass"] .answer-option.selected,
 [data-theme="glass"] .ordering-item:hover {
@@ -1455,6 +1611,26 @@ body {
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     box-shadow: var(--glass-bevel);
+}
+
+[data-theme="glass-dark"] .pairing-slot {
+    background: rgba(22, 24, 34, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="glass-dark"] .pairing-slot-text {
+    color: #e4e6eb;
+}
+
+[data-theme="glass-dark"] .pairing-column-header {
+    color: #a8adba;
+}
+
+[data-theme="glass-dark"] .pairing-drop {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.20);
 }
 
 [data-theme="glass-dark"] .answer-option:hover,

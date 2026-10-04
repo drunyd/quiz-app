@@ -493,6 +493,31 @@ def shuffle_multiplechoice(question):
     
     return question
 
+def shuffle_pairing(question):
+    """Shuffle both columns of a pairing question independently.
+
+    Stores the display order in left_items/right_items and the correct
+    right-hand pair index for each displayed left slot in pairing_correct.
+    """
+    pairs = question.get("Pairs") or []
+    valid = [
+        (idx, str(pair[0]), str(pair[1]))
+        for idx, pair in enumerate(pairs)
+        if isinstance(pair, (list, tuple)) and len(pair) >= 2
+    ]
+
+    left = [(idx, left_text) for idx, left_text, _right_text in valid]
+    right = [(idx, right_text) for idx, _left_text, right_text in valid]
+    random.shuffle(left)
+    random.shuffle(right)
+
+    question["left_items"] = [{"pair": idx, "text": text} for idx, text in left]
+    question["right_items"] = [{"pair": idx, "text": text} for idx, text in right]
+    question["pairing_correct"] = [str(idx) for idx, _text in left]
+
+    return question
+
+
 def select_and_shuffle_questions(questions):
     # Create a list of (original_index, question) tuples
     indexed_questions = list(enumerate(questions))
@@ -508,6 +533,26 @@ def select_and_shuffle_questions(questions):
     
     return shuffled_questions, original_indices
 
+
+def prepare_questions(questions):
+    """Select/shuffle questions and build per-type display state."""
+    if not isinstance(questions, list):
+        questions = [questions]
+
+    questions, original_indices = select_and_shuffle_questions(questions)
+
+    for question in questions:
+        qtype = question.get("Type")
+        if qtype == "singlechoice":
+            shuffle_singlechoice(question)
+        elif qtype == "multiplechoice":
+            shuffle_multiplechoice(question)
+        elif qtype == "pairing":
+            shuffle_pairing(question)
+
+    return questions, original_indices
+
+
 @app.get("/quiz/{quiz_path:path}", response_class=HTMLResponse)
 def quiz(request: Request, quiz_path: str):
     user = get_current_user(request)
@@ -522,13 +567,7 @@ def quiz(request: Request, quiz_path: str):
     source_path, source_url = get_quiz_source(quiz_path, quiz)
 
     # Randomly select and shuffle questions
-    questions, original_indices = select_and_shuffle_questions(questions)
-
-    for question in questions:
-        if question["Type"] == "singlechoice":
-            shuffle_singlechoice(question)
-        elif question["Type"] == "multiplechoice":
-            shuffle_multiplechoice(question)
+    questions, original_indices = prepare_questions(questions)
 
     # Store the complete shuffled state as JSON
     import json
@@ -569,29 +608,14 @@ async def submit(request: Request, quiz_path: str):
             shuffled_data = json.loads(shuffled_state_str)
             shuffled_questions = [item['question'] for item in shuffled_data]
         except (json.JSONDecodeError, KeyError):
-            # Fallback: reload and re-shuffle
-            quiz = load_quiz(quiz_path)
-            questions = quiz.get("Question", [])
-            if not isinstance(questions, list):
-                questions = [questions]
-            shuffled_questions, _ = select_and_shuffle_questions(questions)
-            for question in shuffled_questions:
-                if question["Type"] == "singlechoice":
-                    shuffle_singlechoice(question)
-                elif question["Type"] == "multiplechoice":
-                    shuffle_multiplechoice(question)
+            shuffled_questions = None
     else:
+        shuffled_questions = None
+
+    if shuffled_questions is None:
         # Fallback: reload and re-shuffle
         quiz = load_quiz(quiz_path)
-        questions = quiz.get("Question", [])
-        if not isinstance(questions, list):
-            questions = [questions]
-        shuffled_questions, _ = select_and_shuffle_questions(questions)
-        for question in shuffled_questions:
-            if question["Type"] == "singlechoice":
-                shuffle_singlechoice(question)
-            elif question["Type"] == "multiplechoice":
-                shuffle_multiplechoice(question)
+        shuffled_questions, _ = prepare_questions(quiz.get("Question", []))
 
     score = 0
     total = len(shuffled_questions)
@@ -599,7 +623,7 @@ async def submit(request: Request, quiz_path: str):
 
     for i, q in enumerate(shuffled_questions):
         qtype = q["Type"]
-        correct = q["Correct"]
+        correct = q.get("Correct")
         is_correct = False
 
         if qtype == "singlechoice":
@@ -692,6 +716,39 @@ async def submit(request: Request, quiz_path: str):
                         'correct_answer': ' → '.join(correct_order),
                         'question_type': 'ordering'
                     })
+
+        elif qtype == "pairing":
+            user_choices = [str(v) for v in form.getlist(f"q{i}")]
+            correct_choices = [str(v) for v in q.get("pairing_correct", [])]
+
+            # Missing slots (unanswered) count as empty and therefore wrong
+            while len(user_choices) < len(correct_choices):
+                user_choices.append("")
+
+            if correct_choices and user_choices == correct_choices:
+                score += 1
+                is_correct = True
+            else:
+                left_items = q.get("left_items", [])
+                right_by_pair = {
+                    str(item.get("pair")): item.get("text", "")
+                    for item in q.get("right_items", [])
+                }
+
+                def format_pairing(choices):
+                    parts = []
+                    for slot_index, left in enumerate(left_items):
+                        picked = choices[slot_index] if slot_index < len(choices) else ""
+                        picked_text = right_by_pair.get(str(picked), "nincs pár")
+                        parts.append(f"{left.get('text', '')} → {picked_text}")
+                    return "; ".join(parts) if parts else "Nincs párosítás"
+
+                incorrect_answers.append({
+                    'question': q.get('Text', f'Question {i+1}'),
+                    'user_answer': format_pairing(user_choices),
+                    'correct_answer': format_pairing(correct_choices),
+                    'question_type': 'pairing'
+                })
 
     # Save the quiz attempt
     save_quiz_attempt(user['username'], quiz_path, score, total)

@@ -121,6 +121,38 @@
                             {% endfor %}
                         </div>
                     </div>
+
+                {% elif q.Type == "pairing" %}
+                    {% set question_index = loop.index0 %}
+                    <input type="hidden" name="q{{ question_index }}_correct" value="{{ q.pairing_correct|join(',') }}">
+                    <div class="pairing-container" data-question="{{ question_index }}">
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-hand-pointer me-2"></i>Húzd a jobb oldali kártyákat a bal oldali fogalmakhoz (vagy koppints a kártyára, majd a fogalomra)!
+                        </p>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="pairing-column-header">{{ q.LeftTitle or 'Fogalom' }}</div>
+                                <div class="pairing-left">
+                                    {% for item in q.left_items %}
+                                    <div class="pairing-slot" data-pair="{{ item.pair }}">
+                                        <span class="pairing-slot-text">{{ item.text }}</span>
+                                        <span class="pairing-drop">
+                                            <input type="hidden" name="q{{ question_index }}" value="">
+                                        </span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="pairing-column-header">{{ q.RightTitle or 'Pár' }}</div>
+                                <div class="pairing-pool" data-question="{{ question_index }}">
+                                    {% for item in q.right_items %}
+                                    <div class="pairing-chip" draggable="true" data-question="{{ question_index }}" data-pair="{{ item.pair }}">{{ item.text }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
         {% endfor %}
@@ -202,10 +234,17 @@
                 const checkboxes = document.querySelectorAll(`input[name="q${i}"][type="checkbox"]`);
                 const textInput = document.querySelector(`input[name="q${i}"][type="text"]`);
                 const orderingInputs = document.querySelectorAll(`input[name="q${i}"][type="hidden"]`);
+                const pairingContainer = document.querySelector(`.pairing-container[data-question="${i}"]`);
 
                 let isAnswered = false;
 
-                if (radios.length > 0) {
+                if (pairingContainer) {
+                    const drops = pairingContainer.querySelectorAll('.pairing-drop');
+                    isAnswered = drops.length > 0 && Array.from(drops).every(drop => {
+                        const slotInput = drop.querySelector('input[type="hidden"]');
+                        return slotInput && slotInput.value !== '';
+                    });
+                } else if (radios.length > 0) {
                     isAnswered = Array.from(radios).some(r => r.checked);
                 } else if (checkboxes.length > 0) {
                     isAnswered = Array.from(checkboxes).some(c => c.checked);
@@ -323,6 +362,109 @@
                 const items = Array.from(container.querySelectorAll('.ordering-item'));
                 const itemIndex = items.indexOf(item);
                 moveItem(questionIndex, itemIndex, 1);
+            });
+        });
+
+        // ---- Pairing questions: drag & drop with a tap fallback ----
+        let selectedChip = null;
+        let draggedChip = null;
+
+        function pairingContainer(el) {
+            return el.closest('.pairing-container');
+        }
+
+        function syncPairing(container) {
+            if (!container) return;
+            container.querySelectorAll('.pairing-slot').forEach(slot => {
+                const chip = slot.querySelector('.pairing-chip');
+                const input = slot.querySelector('input[type="hidden"]');
+                if (input) input.value = chip ? chip.dataset.pair : '';
+            });
+        }
+
+        function clearChipSelection() {
+            document.querySelectorAll('.pairing-chip.selected').forEach(c => c.classList.remove('selected'));
+            selectedChip = null;
+        }
+
+        function returnChipToPool(chip) {
+            const container = pairingContainer(chip);
+            if (!container) return;
+            const pool = container.querySelector('.pairing-pool');
+            if (pool) pool.appendChild(chip);
+            chip.classList.remove('selected');
+        }
+
+        function placeChip(chip, drop) {
+            const container = pairingContainer(drop);
+            if (!container || pairingContainer(chip) !== container) return;
+
+            const existing = drop.querySelector('.pairing-chip');
+            if (existing && existing !== chip) {
+                returnChipToPool(existing);
+            }
+            drop.appendChild(chip);
+            chip.classList.remove('selected');
+            selectedChip = null;
+            syncPairing(container);
+            updateProgress();
+        }
+
+        document.querySelectorAll('.pairing-chip').forEach(chip => {
+            chip.addEventListener('dragstart', function (e) {
+                draggedChip = this;
+                this.classList.add('dragging');
+                if (e.dataTransfer) {
+                    e.dataTransfer.setData('text/plain', this.dataset.pair);
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+            chip.addEventListener('dragend', function () {
+                this.classList.remove('dragging');
+                draggedChip = null;
+            });
+            chip.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const container = pairingContainer(this);
+                if (this.closest('.pairing-drop')) {
+                    // A placed chip goes back to its pool
+                    returnChipToPool(this);
+                    syncPairing(container);
+                    updateProgress();
+                    return;
+                }
+                // A pool chip toggles selection
+                const wasSelected = this.classList.contains('selected');
+                clearChipSelection();
+                if (!wasSelected) {
+                    this.classList.add('selected');
+                    selectedChip = this;
+                }
+            });
+        });
+
+        document.querySelectorAll('.pairing-drop').forEach(drop => {
+            drop.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+            });
+            drop.addEventListener('dragleave', function () {
+                this.classList.remove('drag-over');
+            });
+            drop.addEventListener('drop', function (e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                if (draggedChip) placeChip(draggedChip, this);
+            });
+        });
+
+        document.querySelectorAll('.pairing-slot').forEach(slot => {
+            slot.addEventListener('click', function (e) {
+                if (e.target.closest('.pairing-chip')) return;
+                if (!selectedChip) return;
+                const drop = this.querySelector('.pairing-drop');
+                if (drop) placeChip(selectedChip, drop);
             });
         });
 
